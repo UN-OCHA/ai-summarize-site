@@ -10,9 +10,8 @@ COPY . /srv/www
 
 WORKDIR /srv/www
 
-# Add pdfinfo and pdftotext
-RUN apk add -U poppler-utils && \
-    rm -rf /var/cache/apk/*
+# Add pdfinfo and pdftotext.
+RUN apk add -U --no-cache poppler-utils
 
 # Clean up previous composer installation and run new one.
 RUN rm -rf ./vendor && composer install --no-interaction --no-dev
