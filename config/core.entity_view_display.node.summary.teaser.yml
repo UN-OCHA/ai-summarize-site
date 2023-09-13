@@ -1,0 +1,32 @@
+uuid: ac80e9b0-e751-4396-a55b-bbb61fd47fdc
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.summary.field_pdf
+    - field.field.node.summary.field_pdf_text
+    - field.field.node.summary.field_summary
+    - node.type.summary
+  module:
+    - user
+id: node.summary.teaser
+targetEntityType: node
+bundle: summary
+mode: teaser
+content:
+  content_moderation_control:
+    settings: {  }
+    third_party_settings: {  }
+    weight: -20
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_pdf: true
+  field_pdf_text: true
+  field_summary: true
+  langcode: true

@@ -1,0 +1,72 @@
+version: "2.2"
+
+networks:
+  default:
+
+volumes:
+  ai-summarize-test-site-database:
+  ai-summarize-test-site-public:
+  ai-summarize-test-site-private:
+
+services:
+  memcache:
+    restart: always
+    image: public.ecr.aws/unocha/memcache:1.6
+    hostname: ai-summarize-test-memcache
+    container_name: ai-summarize-test-memcache
+    environment:
+      MEMCACHE_MAX_MEMORY: 64
+    ports:
+      - "11211"
+    networks:
+      - default
+
+  mysql:
+    image: public.ecr.aws/unocha/mysql:10.6
+    hostname: ai-summarize-test-mysql
+    container_name: ai-summarize-test-mysql
+    environment:
+      - MYSQL_DB=ai-summarize
+      - MYSQL_USER=ai-summarize
+      - MYSQL_PASS=ai-summarize
+    volumes:
+      - "ai-summarize-test-site-database:/var/lib/mysql:rw"
+    networks:
+      - default
+
+  drupal:
+    image: public.ecr.aws/unocha/ai-summarize-site:local
+    hostname: ai-summarize-test-site
+    container_name: ai-summarize-test-site
+    depends_on:
+      - memcache
+      - mysql
+    volumes:
+      - "./settings:/srv/www/shared/settings:ro"
+      # Mount volumes for the private and public files.
+      - "ai-summarize-test-site-public:/srv/www/html/sites/default/files:rw"
+      - "ai-summarize-test-site-private:/srv/www/html/sites/default/private:rw"
+      # Mount the folders needed for the tests.
+      - "../phpcs.xml:/srv/www/phpcs.xml:ro"
+      - "../phpunit.xml:/srv/www/phpunit.xml:ro"
+      # Mount local custom code.
+      #- "../html/modules/custom:/srv/www/html/modules/custom:ro"
+      #- "../html/themes/custom:/srv/www/html/themes/custom:ro"
+    environment:
+      - TERM=xterm
+      - ENVIRONMENT=dev
+      - NGINX_SERVERNAME=ai-summarize-test-site,localhost,127.0.0.1
+      - NGINX_OVERRIDE_PROTOCOL=HTTP,ai-summarize-test-site,localhost,127.0.0.1
+      - DRUSH_OPTIONS_URI=http://ai-summarize-test-site
+      - DRUPAL_DB_DATABASE=ai-summarize
+      - DRUPAL_DB_USERNAME=ai-summarize
+      - DRUPAL_DB_PASSWORD=ai-summarize
+      - DRUPAL_DB_HOST=mysql
+      - DRUPAL_DB_DRIVER=mysql
+      - PHP_ENVIRONMENT=dev
+      - PHP_XDEBUG=true
+      - XDEBUG_MODE=coverage
+      - BROWSERTEST_OUTPUT_DIRECTORY=/srv/www/html/sites/default/files/browser_output
+      - DTT_BASE_URL=http://127.0.0.1
+    networks:
+      - default

@@ -1,0 +1,17 @@
+uuid: ca78851f-3676-4fea-aca4-00f1e5f3cb83
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Summary
+type: summary
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

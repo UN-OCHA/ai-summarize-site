@@ -1,0 +1,19 @@
+uuid: 512279b2-8e36-41e7-9bd9-1a0d4c772059
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pdf_text
+    - node.type.summary
+id: node.summary.field_pdf_text
+field_name: field_pdf_text
+entity_type: node
+bundle: summary
+label: 'PDF text'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

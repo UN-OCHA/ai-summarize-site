@@ -1,0 +1,19 @@
+uuid: 2d23a1ba-a3c7-4885-86f9-a91b01334224
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_pdf_text
+field_name: field_pdf_text
+entity_type: node
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

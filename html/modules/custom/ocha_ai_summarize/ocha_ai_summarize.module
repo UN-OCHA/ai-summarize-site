@@ -1,0 +1,236 @@
+<?php
+
+/**
+ * @file
+ * Use AI to summarize PDF files.
+ */
+
+use Drupal\content_moderation\Entity\ContentModerationState;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Symfony\Component\Process\Process;
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function ocha_ai_summarize_node_insert(EntityInterface $entity) {
+  ocha_ai_summarize_node_update($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function ocha_ai_summarize_node_update(EntityInterface $entity) {
+  if ($entity->bundle() !== 'summary') {
+    return;
+  }
+
+  $queue_name = '';
+  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
+  if (!$content_moderation_state) {
+    $queue_name = 'ocha_ai_summarize_extract_text';
+  }
+  else {
+    switch ($content_moderation_state->get('moderation_state')->value) {
+      case 'pdf_uploaded':
+        $queue_name = 'ocha_ai_summarize_extract_text';
+        break;
+
+      case 'text_extracted':
+        $queue_name = 'ocha_ai_summarize_summarize';
+        break;
+    }
+  }
+
+  if (empty($queue_name)) {
+    return;
+  }
+
+  $queue = \Drupal::service('queue')->get($queue_name);
+  $item = new \stdClass();
+  $item->nid = $entity->id();
+  $queue->createItem($item);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($entity->bundle() !== 'summary') {
+    return;
+  }
+
+  if ($entity->isPublished()) {
+    return;
+  }
+
+  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
+  if (!$content_moderation_state) {
+    $active = 'pdf_uploaded';
+  }
+  else {
+    $active = $content_moderation_state->get('moderation_state')->value;
+  }
+
+  $states = [
+    'pdf_uploaded' => [
+      '#markup' => 'PDF uploaded',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'text_extracted' => [
+      '#markup' => 'Text extracted',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'summarized' => [
+      '#markup' => 'Summarized',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+  ];
+
+  $future = FALSE;
+  foreach ($states as $key => &$state) {
+    if ($key == $active) {
+      $state['#wrapper_attributes']['class'] = ['active'];
+      $future = TRUE;
+    }
+    else {
+      if (!$future) {
+        $state['#wrapper_attributes']['class'] = ['done'];
+      }
+      else {
+        $state['#wrapper_attributes']['class'] = ['to-do'];
+      }
+    }
+  }
+
+  $build['workflow'] = [
+    '#theme' => 'item_list',
+    '#attributes' => [
+      'class' => [
+        'workflow-steps',
+      ],
+    ],
+    '#list_type' => 'ol',
+    '#items' => array_values($states),
+    '#weight' => -100,
+  ];
+}
+
+/**
+ * Get number of pages in a PDF file.
+ */
+function ocha_ai_summarize_get_num_pages($filename) {
+  $command = [
+    'pdfinfo',
+    $filename,
+  ];
+
+  $process = new Process($command);
+  $process->setTimeout(10);
+  $process->run();
+  if (!$process->isSuccessful()) {
+    return FALSE;
+  }
+
+  $output = trim($process->getOutput(), " \t\n\r\0\x0B\x0C");
+
+  $matches = [];
+  preg_match('/Pages:\s+([\d]+)/', $output, $matches);
+  return $matches[1];
+}
+
+/**
+ * Extract text for each page separately.
+ */
+function ocha_ai_summarize_extract_pages($filename) {
+  $pages = [];
+  $num_pages = ocha_ai_summarize_get_num_pages($filename);
+
+  foreach (range(1, $num_pages) as $page_num) {
+    $command = [
+      'pdftotext',
+      '-f',
+      $page_num,
+      '-l',
+      $page_num,
+      $filename,
+      '-',
+    ];
+
+    $process = new Process($command);
+    $process->setTimeout(10);
+    $process->run();
+    if (!$process->isSuccessful()) {
+      return FALSE;
+    }
+
+    $output = trim($process->getOutput(), " \t\n\r\0\x0B\x0C");
+
+    // Remove tabs.
+    $text = str_replace(["\t"], '', $output);
+
+    // Keep lists as is.
+    $text = str_replace([
+      "\n➢",
+      "\n▪",
+      "\n-",
+      "\n*",
+      "\no\n",
+    ], [
+      "||||➢",
+      "||||▪",
+      "||||-",
+      "||||*",
+      "||||o ",
+    ], $text);
+
+    // Two new lines make a paragraph.
+    $text = str_replace("\n\n", '|||', $text);
+
+    // Remove single line feeds.
+    $text = str_replace("\n", ' ', $text);
+
+    // Re-add lists.
+    $text = str_replace('||||', "\n", $text);
+
+    // Re-add paragraphs.
+    $text = str_replace('|||', "\n\n", $text);
+
+    $pages[] = $text;
+  }
+
+  return $pages;
+}
+
+/**
+ * Make chat call.
+ */
+function ocha_ai_summarize_http_call_chat($query) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+
+  $http_client = \Drupal::httpClient();
+  $url = 'https://api.openai.com/v1/chat/completions';
+
+  $headers = [
+    'Content-Type' => 'application/json',
+    'Authorization' => 'Bearer ' . $config->get('openai_token'),
+  ];
+
+  $response = $http_client->request(
+    'POST',
+    $url,
+    [
+      'headers' => $headers,
+      'json' => $query,
+    ],
+  );
+
+  $body = $response->getBody() . '';
+  return json_decode($body, TRUE);
+}

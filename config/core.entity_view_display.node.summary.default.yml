@@ -1,0 +1,41 @@
+uuid: d4f02ed3-411d-4fd0-a867-9a681762f4a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.summary.field_pdf
+    - field.field.node.summary.field_pdf_text
+    - field.field.node.summary.field_summary
+    - node.type.summary
+  module:
+    - file
+    - user
+id: node.summary.default
+targetEntityType: node
+bundle: summary
+mode: default
+content:
+  field_pdf:
+    type: file_default
+    label: inline
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_summary:
+    type: basic_string
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden:
+  content_moderation_control: true
+  field_pdf_text: true
+  langcode: true

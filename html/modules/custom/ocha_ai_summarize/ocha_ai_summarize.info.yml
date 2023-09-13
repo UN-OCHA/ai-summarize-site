@@ -1,0 +1,7 @@
+name: 'OCHA AI Summarize'
+description: 'OCHA AI Summarize'
+type: module
+core_version_requirement: ^10
+dependencies:
+  - core:options
+#configure: ocha_key_figures.ocha_presences
