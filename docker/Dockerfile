@@ -1,5 +1,5 @@
 # Build the code.
-FROM public.ecr.aws/unocha/unified-builder:8.1-stable as builder
+FROM public.ecr.aws/unocha/php-k8s:8.1-stable as builder
 
 ARG  BRANCH_ENVIRONMENT
 
@@ -9,6 +9,10 @@ ENV  NODE_ENV=$BRANCH_ENVIRONMENT
 COPY . /srv/www
 
 WORKDIR /srv/www
+
+# Add pdfinfo and pdftotext
+RUN apk add -U poppler-utils && \
+    rm -rf /var/cache/apk/*
 
 # Clean up previous composer installation and run new one.
 RUN rm -rf ./vendor && composer install --no-interaction --no-dev
