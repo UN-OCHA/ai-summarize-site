@@ -8,6 +8,7 @@
 use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -25,21 +26,46 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
     return;
   }
 
-  $queue_name = '';
-  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
-  if (!$content_moderation_state) {
-    $queue_name = 'ocha_ai_summarize_extract_text';
-  }
-  else {
-    switch ($content_moderation_state->get('moderation_state')->value) {
-      case 'pdf_uploaded':
-        $queue_name = 'ocha_ai_summarize_extract_text';
-        break;
+  /** @var \Drupal\content_moderation\ModerationInformationInterface $moderation_info */
+  $moderation_info = Drupal::service('content_moderation.moderation_information');
 
-      case 'text_extracted':
-        $queue_name = 'ocha_ai_summarize_summarize';
-        break;
-    }
+  // Check to see if the content is moderated or not.
+  $is_moderated = $moderation_info->isModeratedEntity($entity);
+
+  if (!$is_moderated) {
+    return;
+  }
+
+  $current_state = $entity->moderation_state->value;
+  $automatic_mode = $entity->field_automatic_mode->value;
+
+  if (!$current_state) {
+    return;
+  }
+
+  $queue_name = '';
+  switch ($current_state) {
+    case 'pdf_uploaded':
+      if ($automatic_mode) {
+        $entity->set('moderation_state', 'extract_text');
+        $entity->save();
+      }
+      break;
+
+    case 'extract_text':
+      $queue_name = 'ocha_ai_summarize_extract_text';
+      break;
+
+    case 'text_extracted':
+      if ($automatic_mode) {
+        $entity->set('moderation_state', 'summarize');
+        $entity->save();
+      }
+      break;
+
+    case 'summarize':
+      $queue_name = 'ocha_ai_summarize_summarize';
+      break;
   }
 
   if (empty($queue_name)) {
@@ -49,7 +75,73 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
   $queue = \Drupal::service('queue')->get($queue_name);
   $item = new \stdClass();
   $item->nid = $entity->id();
+  $item->brain = $entity->get('field_ai_brain')->value;
   $queue->createItem($item);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ocha_ai_summarize_form_node_summary_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  ocha_ai_summarize_form_node_summary_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ocha_ai_summarize_form_node_summary_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  ocha_ai_summarize_form_node_summary_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Alter summary form based on state.
+ */
+function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'node_summary_form') {
+    $form['field_pdf_text']['#access'] = FALSE;
+    $form['field_summary']['#access'] = FALSE;
+    $form['moderation_state']['#access'] = FALSE;
+    $form['moderation_state']['widget'][0]['state']['#default_value'] = 'pdf_uploaded';
+    return;
+  }
+
+  $node = $form_state->getFormObject()->getEntity();
+  $current_state = $node->moderation_state->value;
+  if (!$current_state) {
+    return;
+  }
+
+  switch ($current_state) {
+    case 'draft':
+    case 'pdf_uploaded':
+    case 'extract_text':
+      $form['field_pdf_text']['#access'] = FALSE;
+      $form['field_summary']['#access'] = FALSE;
+      $form['moderation_state']['#access'] = FALSE;
+      break;
+
+    case 'text_extracted':
+      $form['field_summary']['#access'] = FALSE;
+      break;
+
+    case 'summarize':
+      $form['field_pdf_text']['#disabled'] = TRUE;
+      unset($form['field_pdf_text']['widget'][$form['field_pdf_text']['widget']['#max_delta']]);
+      unset($form['field_pdf_text']['widget']['add_more']);
+
+      $form['field_summary']['#access'] = FALSE;
+      $form['moderation_state']['#access'] = FALSE;
+      break;
+
+    case 'summarized':
+      $form['field_pdf_text']['#disabled'] = TRUE;
+      unset($form['field_pdf_text']['widget'][$form['field_pdf_text']['widget']['#max_delta']]);
+      unset($form['field_pdf_text']['widget']['add_more']);
+
+      $form['field_summary']['#disabled'] = TRUE;
+      break;
+
+  }
 }
 
 /**
@@ -79,8 +171,20 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
         'class' => [],
       ],
     ],
+    'extract_text' => [
+      '#markup' => 'Extract text',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
     'text_extracted' => [
       '#markup' => 'Text extracted',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'summarize' => [
+      '#markup' => 'Summarize',
       '#wrapper_attributes' => [
         'class' => [],
       ],
@@ -209,9 +313,9 @@ function ocha_ai_summarize_extract_pages($filename) {
 }
 
 /**
- * Make chat call.
+ * Make chat call to OpenAi.
  */
-function ocha_ai_summarize_http_call_chat($query) {
+function ocha_ai_summarize_http_call_openai($query) {
   $config = \Drupal::config('ocha_ai_summarize.settings');
 
   $http_client = \Drupal::httpClient();
@@ -225,6 +329,34 @@ function ocha_ai_summarize_http_call_chat($query) {
   $response = $http_client->request(
     'POST',
     $url,
+    [
+      'headers' => $headers,
+      'json' => $query,
+    ],
+  );
+
+  $body = $response->getBody() . '';
+  return json_decode($body, TRUE);
+}
+
+/**
+ * Make chat call to Azure.
+ */
+function ocha_ai_summarize_http_call_azure($query) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $endpoint = $config->get('azure_endpoint');
+  $key = $config->get('azure_apikey');
+
+  $http_client = \Drupal::httpClient();
+
+  $headers = [
+    'Content-Type' => 'application/json',
+    'API-KEY' => $key,
+  ];
+
+  $response = $http_client->request(
+    'POST',
+    $endpoint,
     [
       'headers' => $headers,
       'json' => $query,

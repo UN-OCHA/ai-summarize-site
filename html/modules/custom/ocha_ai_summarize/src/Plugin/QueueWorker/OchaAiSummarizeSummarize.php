@@ -50,6 +50,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
    * {@inheritdoc}
    */
   public function processItem($data) {
+    $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
     if (empty($nid)) {
       return;
@@ -68,7 +69,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
-    if ($content_moderation_state->get('moderation_state')->value !== 'text_extracted') {
+    if ($content_moderation_state->get('moderation_state')->value !== 'summarize') {
       return;
     }
 
@@ -85,29 +86,38 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         continue;
       }
 
-      $results[] = ocha_ai_summarize_http_call_chat(
-        [
-          'model' => 'gpt-3.5-turbo-16k',
-          'messages' => [
-            [
-              'role' => 'user',
-              'content' => "Summerize the following text:\n\n" . $text,
-            ],
-          ],
-          'temperature' => .2,
-          'max_tokens' => 300,
-        ],
-      );
+      if ($bot == 'openai') {
+        $results[] = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+      }
+      else {
+        $results[] = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+      }
     }
 
     // Summarize the summaries.
     $text = '';
     foreach ($results as $row) {
-      $text .= $row['choices'][0]['message']['content'] ?? '';
+      $text .= $row;
       $text .= "\n";
     }
 
-    $result = ocha_ai_summarize_http_call_chat(
+    if ($bot == 'openai') {
+      $summary = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+    }
+    else {
+      $summary = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+    }
+
+    $node->set('field_summary', $summary);
+    $node->set('moderation_state', 'summarized');
+    $node->save();
+  }
+
+  /**
+   * Send query to OpenAi.
+   */
+  protected function sendToOpenAi($text) : string {
+    $result = ocha_ai_summarize_http_call_openai(
       [
         'model' => 'gpt-3.5-turbo-16k',
         'messages' => [
@@ -121,11 +131,29 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       ],
     );
 
-    $summary = $result['choices'][0]['message']['content'];
+    return $result['choices'][0]['message']['content'] ?? '';
+  }
 
-    $node->set('field_summary', $summary);
-    $node->set('moderation_state', 'summarized');
-    $node->save();
+  /**
+   * Send query to Azure AI.
+   */
+  protected function sendToAzureAi($text) : string {
+    $result = ocha_ai_summarize_http_call_azure(
+      [
+        'messages' => [
+          [
+            'role' => 'system',
+            'content' => 'You are an AI assistant that summarizes information.',
+          ],
+          [
+            'role' => 'user',
+            'content' => $text,
+          ],
+        ],
+      ],
+    );
+
+    return $result['choices'][0]['message']['content'] ?? '';
   }
 
 }

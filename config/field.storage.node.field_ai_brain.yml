@@ -1,0 +1,27 @@
+uuid: ff29ae84-1cdf-49a6-ae9c-c71f8dfd7f0d
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_ai_brain
+field_name: field_ai_brain
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: openai
+      label: 'Open AI (chat-gpt-3.5)'
+    -
+      value: azure_trained
+      label: 'Trained Azure AI'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

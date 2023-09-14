@@ -4,9 +4,26 @@
 
 Uses AI to summarize PDF files
 
+## Settings
+
+```php
+$config['ocha_ai_summarize.settings']['openai_token'] = 'xxx';
+$config['ocha_ai_summarize.settings']['azure_endpoint'] = 'https://tst003.openai.azure.com/openai/deployments/tst003/chat/completions?api-version=2023-03-15-preview';
+$config['ocha_ai_summarize.settings']['azure_apikey'] = 'yyy';
+```
+
+## Cron
+
+```bash
+drush queue:process ocha_ai_summarize_extract_text
+drush queue:process ocha_ai_summarize_summarize
+```
+
+We can either use cron to run the queues or run them separatly
+
 ## Flow
 
-1. User creates a new *Summary* node providing a title and a PDF file
+1. User creates a new *Summary* node providing a title and a PDF file and which brain to use
 2. A queue item is created to extract the text
 3. `drush queue:process ocha_ai_summarize_extract_text`
 4. The node is updated and the extracted text is added

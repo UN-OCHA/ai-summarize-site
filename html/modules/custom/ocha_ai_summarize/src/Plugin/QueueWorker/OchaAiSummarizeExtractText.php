@@ -6,7 +6,6 @@ use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -31,13 +30,6 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
   /**
    * Queue.
    *
-   * @var \Drupal\Core\Queue\QueueFactory
-   */
-  protected $queue;
-
-  /**
-   * Queue.
-   *
    * @var \Drupal\Core\File\FileSystem
    */
   protected $fileSystem;
@@ -45,10 +37,9 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueueFactory $queue, FileSystem $file_system) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, FileSystem $file_system) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
-    $this->queue = $queue;
     $this->fileSystem = $file_system;
   }
 
@@ -61,7 +52,6 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('queue'),
       $container->get('file_system'),
     );
   }
@@ -87,7 +77,7 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
       return;
     }
 
-    if ($content_moderation_state->get('moderation_state')->value !== 'pdf_uploaded') {
+    if ($content_moderation_state->get('moderation_state')->value !== 'extract_text') {
       return;
     }
 
@@ -113,11 +103,6 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
     $node->set('field_pdf_text', $text);
     $node->set('moderation_state', 'text_extracted');
     $node->save();
-
-    $queue = $this->queue->get('ocha_ai_summarize_summarize');
-    $item = new \stdClass();
-    $item->nid = $node->id();
-    $queue->createItem($item);
   }
 
 }
