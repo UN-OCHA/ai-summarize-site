@@ -5,10 +5,14 @@
  * Use AI to summarize PDF files.
  */
 
+use Aws\Credentials\Credentials;
+use Aws\Signature\SignatureV4;
 use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 use Symfony\Component\Process\Process;
 
 /**
@@ -362,6 +366,52 @@ function ocha_ai_summarize_http_call_azure($query) {
       'json' => $query,
     ],
   );
+
+  $body = $response->getBody() . '';
+  return json_decode($body, TRUE);
+}
+
+/**
+ * Make chat call to BedRock.
+ */
+function ocha_ai_summarize_http_call_bedrock($prompt) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $endpoint = $config->get('bedrock_endpoint');
+  $access_key = $config->get('bedrock_access_key');
+  $secret_key = $config->get('bedrock_secret_key');
+  $model = $config->get('bedrock_model');
+
+  $headers = [
+    'Content-Type' => 'application/json',
+    'Accept' => 'application/json',
+    'modelId' => $model,
+  ];
+
+  $version = '1.1';
+
+  $body = [
+    'inputText' => $prompt,
+    'textGenerationConfig' => [
+      'maxTokenCount' => 4000,
+      'stopSequences' => [],
+      'temperature' => 0,
+      'topP' => 1,
+    ],
+  ];
+
+  $client = new Client([
+    'timeout' => 30,
+  ]);
+
+  $request = new Request('POST', $endpoint, $headers, json_encode($body), $version);
+
+  $region = 'us-east-1';
+  $service = 'bedrock';
+  $signature = new SignatureV4($service, $region);
+  $credentials = new Credentials($access_key, $secret_key);
+
+  $request = $signature->signRequest($request, $credentials);
+  $response = $client->send($request);
 
   $body = $response->getBody() . '';
   return json_decode($body, TRUE);

@@ -86,11 +86,18 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         continue;
       }
 
-      if ($bot == 'openai') {
-        $results[] = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
-      }
-      else {
-        $results[] = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+      switch ($bot) {
+        case 'openai':
+          $results[] = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+          break;
+
+        case 'azure_trained':
+          $results[] = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+          break;
+
+        case 'bedrock':
+          $results[] = $this->sendToBedRock("Summerize the following text in 3 paragraphs:\n\n" . $text);
+          break;
       }
     }
 
@@ -101,11 +108,18 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       $text .= "\n";
     }
 
-    if ($bot == 'openai') {
-      $summary = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
-    }
-    else {
-      $summary = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+    switch ($bot) {
+      case 'openai':
+        $summary = $this->sendToOpenAi("Summerize the following text in 5 paragraphs:\n\n" . $text);
+        break;
+
+      case 'azure_trained':
+        $summary = $this->sendToAzureAi("Summerize the following text in 5 paragraphs:\n\n" . $text);
+        break;
+
+      case 'bedrock':
+        $summary = $this->sendToBedRock("Summerize the following text in 5 paragraphs:\n\n" . $text);
+        break;
     }
 
     $node->set('field_summary', $summary);
@@ -154,6 +168,14 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     );
 
     return $result['choices'][0]['message']['content'] ?? '';
+  }
+
+  /**
+   * Send query to BedRock.
+   */
+  protected function sendToBedRock($text) : string {
+    $result = ocha_ai_summarize_http_call_bedrock($text);
+    return $result['results'][0]['outputText'] ?? '';
   }
 
 }
