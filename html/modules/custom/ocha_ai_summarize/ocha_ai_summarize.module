@@ -6,7 +6,9 @@
  */
 
 use Aws\Credentials\Credentials;
+use Aws\S3\S3Client;
 use Aws\Signature\SignatureV4;
+use Aws\Textract\TextractClient;
 use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -314,6 +316,130 @@ function ocha_ai_summarize_extract_pages($filename) {
   }
 
   return $pages;
+}
+
+/**
+ * Upload file to S3.
+ */
+function ocha_ai_summarize_upload_to_s3($file_name) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $access_key = $config->get('bedrock_access_key');
+  $secret_key = $config->get('bedrock_secret_key');
+
+  $client = new S3Client([
+    'credentials' => [
+      'key' => $access_key,
+      'secret' => $secret_key,
+    ],
+    'region' => 'us-east-1',
+  ]);
+
+  $bucket_name = 'ai-summarize-pdfs';
+  $key_name = basename($file_name);
+
+  $client->putObject([
+    'Bucket' => $bucket_name,
+    'Key' => $key_name,
+    'SourceFile' => $file_name,
+  ]);
+}
+
+/**
+ * Extract text using AWS Textract.
+ */
+function ocha_ai_summarize_texttract($file_name) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $access_key = $config->get('bedrock_access_key');
+  $secret_key = $config->get('bedrock_secret_key');
+
+  $client = new TextractClient([
+    'region' => 'us-east-1',
+    'credentials' => [
+      'key' => $access_key,
+      'secret' => $secret_key,
+    ],
+  ]);
+
+  $bucket_name = 'ai-summarize-pdfs';
+  $key_name = basename($file_name);
+
+  $options = [
+    'DocumentLocation' => [
+      'S3Object' => [
+        'Bucket' => $bucket_name,
+        'Name' => $key_name,
+      ],
+    ],
+    'FeatureTypes' => [],
+  ];
+
+  $result = $client->startDocumentTextDetection($options);
+  $job_id = $result->get('JobId');
+  return $job_id;
+}
+
+/**
+ * Get extracted text using AWS Textract.
+ */
+function ocha_ai_summarize_texttract_get_text($job_id) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $access_key = $config->get('bedrock_access_key');
+  $secret_key = $config->get('bedrock_secret_key');
+
+  $client = new TextractClient([
+    'region' => 'us-east-1',
+    'credentials' => [
+      'key' => $access_key,
+      'secret' => $secret_key,
+    ],
+  ]);
+
+  $options = [
+    'JobId' => $job_id,
+  ];
+
+  $result = $client->GetDocumentTextDetection($options);
+  $blocks = $result->get('Blocks');
+  $status = $result->get('JobStatus');
+
+  if ($status == 'SUCCEEDED') {
+    $output = '';
+
+    // Concatenate.
+    foreach ($blocks as $value) {
+      if (isset($value['BlockType']) && $value['BlockType']) {
+        $blockType = $value['BlockType'];
+        if (isset($value['Text']) && $value['Text']) {
+          $text = $value['Text'];
+          if ($blockType == 'WORD') {
+            $output .= ' ' . $text;
+          }
+          elseif ($blockType == 'LINE') {
+            $output .= "\n" . $text;
+          }
+        }
+      }
+    }
+
+    $output .= "\n";
+    return $output;
+  }
+
+  return '';
+}
+
+/**
+ * Test run for AWS Textract.
+ */
+function ocha_ai_summarize_testit() {
+  $file_name = '/var/www/private_files/2023-09/2018_OCHA_Aide Memoire.pdf';
+  ocha_ai_summarize_upload_to_s3($file_name);
+  $job_id = ocha_ai_summarize_texttract($file_name);
+
+  sleep(5);
+
+  $text = ocha_ai_summarize_texttract_get_text($job_id);
+  return $text;
 }
 
 /**
