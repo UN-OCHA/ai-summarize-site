@@ -8,8 +8,14 @@ Uses AI to summarize PDF files
 
 ```php
 $config['ocha_ai_summarize.settings']['openai_token'] = 'xxx';
+
 $config['ocha_ai_summarize.settings']['azure_endpoint'] = 'https://tst003.openai.azure.com/openai/deployments/tst003/chat/completions?api-version=2023-03-15-preview';
 $config['ocha_ai_summarize.settings']['azure_apikey'] = 'yyy';
+
+$config['ocha_ai_summarize.settings']['bedrock_endpoint'] = 'https://bedrock.us-east-1.amazonaws.com/model/amazon.titan-tg1-large/invoke';
+$config['ocha_ai_summarize.settings']['bedrock_model'] = 'amazon.titan-tg1-large';
+$config['ocha_ai_summarize.settings']['bedrock_access_key'] = 'x1';
+$config['ocha_ai_summarize.settings']['bedrock_secret_key'] = 'x2';
 ```
 
 ## Cron
