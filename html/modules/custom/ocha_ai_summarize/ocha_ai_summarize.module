@@ -15,6 +15,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\Process\Process;
 
 /**
@@ -261,7 +262,58 @@ function ocha_ai_summarize_get_num_pages($filename) {
 /**
  * Extract text for each page separately.
  */
-function ocha_ai_summarize_extract_pages($filename) {
+function ocha_ai_summarize_extract_pages_from_doc($filename) {
+  $reader_name = '';
+  $file_parts = pathinfo($filename);
+  switch (strtolower($file_parts['extension'])) {
+    case 'docx':
+      $reader_name = 'Word2007';
+      break;
+
+    case 'rtf':
+      $reader_name = 'RTF';
+      break;
+
+    case 'odt':
+      $reader_name = 'ODText';
+      break;
+  }
+
+  if (empty($reader_name)) {
+    return;
+  }
+
+  $phpWord = IOFactory::load($filename, $reader_name);
+
+  $pages = [];
+  foreach ($phpWord->getSections() as $section) {
+    $text = '';
+    foreach ($section->getElements() as $element) {
+      if (method_exists($element, 'getElements')) {
+        foreach ($element->getElements() as $child_element) {
+          if (method_exists($child_element, 'getText')) {
+            $text .= $child_element->getText() . ' ';
+          }
+          elseif (method_exists($child_element, 'getContent')) {
+            $text .= $child_element->getContent() . ' ';
+          }
+        }
+      }
+      elseif (method_exists($element, 'getText')) {
+        $text .= $element->getText() . "\n";
+      }
+    }
+
+    $pages[] = $text;
+  }
+
+  return $pages;
+}
+
+/**
+ * Extract text for each page separately.
+ */
+function ocha_ai_summarize_extract_pages_from_pdf($filename) {
   $pages = [];
   $num_pages = ocha_ai_summarize_get_num_pages($filename);
 
@@ -429,20 +481,6 @@ function ocha_ai_summarize_texttract_get_text($job_id) {
   }
 
   return '';
-}
-
-/**
- * Test run for AWS Textract.
- */
-function ocha_ai_summarize_testit() {
-  $file_name = '/var/www/private_files/2023-09/2018_OCHA_Aide Memoire.pdf';
-  ocha_ai_summarize_upload_to_s3($file_name);
-  $job_id = ocha_ai_summarize_texttract($file_name);
-
-  sleep(5);
-
-  $text = ocha_ai_summarize_texttract_get_text($job_id);
-  return $text;
 }
 
 /**
