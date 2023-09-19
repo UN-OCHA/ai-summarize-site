@@ -17,6 +17,9 @@ settings:
     -
       value: azure_trained
       label: 'Trained Azure AI'
+    -
+      value: bedrock
+      label: 'BedRock (Titan)'
   allowed_values_function: ''
 module: options
 locked: false

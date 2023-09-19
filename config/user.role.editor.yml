@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - filter.format.text_editor_simple
+    - node.type.page
   module:
     - content_translation
     - file
@@ -13,13 +14,15 @@ dependencies:
     - node
     - paragraphs
     - path
+    - system
     - taxonomy
     - toolbar
 id: editor
 label: Editor
-weight: 3
+weight: -5
 is_admin: null
 permissions:
+  - 'access content'
   - 'access content overview'
   - 'access files overview'
   - 'access media overview'
@@ -28,11 +31,17 @@ permissions:
   - 'administer taxonomy'
   - 'create content translations'
   - 'create media'
+  - 'create page content'
   - 'create url aliases'
   - 'delete any media'
+  - 'delete any page content'
   - 'delete content translations'
   - 'delete media'
+  - 'delete own page content'
+  - 'edit any page content'
+  - 'edit own page content'
   - 'revert all revisions'
+  - 'revert page revisions'
   - 'translate any entity'
   - 'translate editable entities'
   - 'translate menu_link_content'
@@ -44,4 +53,5 @@ permissions:
   - 'view all revisions'
   - 'view own unpublished content'
   - 'view own unpublished media'
+  - 'view page revisions'
   - 'view unpublished paragraphs'

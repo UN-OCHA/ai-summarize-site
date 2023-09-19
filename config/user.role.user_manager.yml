@@ -1,0 +1,22 @@
+uuid: d75c3c5c-e577-49a9-92a8-612fe743565d
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.summary
+  module:
+    - content_moderation
+    - node
+    - node_view_permissions
+id: user_manager
+label: 'User manager'
+weight: -7
+is_admin: null
+permissions:
+  - 'access user profiles'
+  - 'administer users'
+  - 'edit any summary content'
+  - 'view any summary content'
+  - 'view any unpublished content'
+  - 'view latest version'
+  - 'view user email addresses'

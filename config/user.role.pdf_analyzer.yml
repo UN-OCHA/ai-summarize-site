@@ -1,0 +1,31 @@
+uuid: 0536c9bf-2876-4201-adab-959ff24e25ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.summary
+    - workflows.workflow.summarize
+  module:
+    - content_moderation
+    - node
+    - node_view_permissions
+    - system
+id: pdf_analyzer
+label: 'PDF Analyzer'
+weight: -6
+is_admin: null
+permissions:
+  - 'access content'
+  - 'create summary content'
+  - 'delete own summary content'
+  - 'edit own summary content'
+  - 'use summarize transition archive'
+  - 'use summarize transition extrat_text'
+  - 'use summarize transition pdf_uploaded'
+  - 'use summarize transition published'
+  - 'use summarize transition summarize'
+  - 'use summarize transition summarized_update'
+  - 'use summarize transition text_extracted_update'
+  - 'view own summary content'
+  - 'view own unpublished content'
+  - 'view summary revisions'

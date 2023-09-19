@@ -23,7 +23,7 @@ dependencies:
     - user_expire
 id: administrator
 label: Administrator
-weight: 2
+weight: -8
 is_admin: true
 permissions:
   - 'access administration pages'

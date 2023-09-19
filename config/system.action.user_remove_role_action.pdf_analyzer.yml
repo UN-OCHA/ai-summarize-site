@@ -1,0 +1,14 @@
+uuid: b4c53584-6d8b-4277-aa80-dcfa59ec5b5f
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.pdf_analyzer
+  module:
+    - user
+id: user_remove_role_action.pdf_analyzer
+label: 'Remove the PDF Analyzer role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: pdf_analyzer

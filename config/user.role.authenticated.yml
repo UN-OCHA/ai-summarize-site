@@ -2,31 +2,18 @@ uuid: a0dde013-3f0e-4c0a-9dbc-7689935d777e
 langcode: en
 status: true
 dependencies:
-  config:
-    - node.type.summary
-    - workflows.workflow.summarize
   module:
-    - content_moderation
     - media
-    - node
+    - node_view_permissions
     - system
 _core:
   default_config_hash: dJ0L2DNSj5q6XVZAGsuVDpJTh5UeYkIPwKrUOOpr8YI
 id: authenticated
 label: 'Authenticated user'
-weight: 1
+weight: -9
 is_admin: false
 permissions:
   - 'access content'
-  - 'create summary content'
-  - 'delete own summary content'
-  - 'edit own summary content'
-  - 'use summarize transition archive'
-  - 'use summarize transition extrat_text'
-  - 'use summarize transition pdf_uploaded'
-  - 'use summarize transition published'
-  - 'use summarize transition summarize'
-  - 'use summarize transition summarized_update'
-  - 'use summarize transition text_extracted_update'
-  - 'view any unpublished content'
+  - 'view any page content'
   - 'view media'
+  - 'view own page content'

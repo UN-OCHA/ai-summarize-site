@@ -44,6 +44,7 @@ module:
   menu_ui: 0
   mysql: 0
   node: 0
+  node_view_permissions: 0
   ocha_ai_summarize: 0
   options: 0
   page_cache: 0

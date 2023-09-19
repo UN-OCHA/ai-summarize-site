@@ -1,0 +1,14 @@
+uuid: 46fae3d7-ce2c-407c-9d81-c2b8b16a3a57
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.pdf_analyzer
+  module:
+    - user
+id: user_add_role_action.pdf_analyzer
+label: 'Add the PDF Analyzer role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: pdf_analyzer
