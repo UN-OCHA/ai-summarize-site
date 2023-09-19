@@ -82,6 +82,7 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
   $item = new \stdClass();
   $item->nid = $entity->id();
   $item->brain = $entity->get('field_ai_brain')->value;
+  $item->num_paragraphs = $entity->get('field_number_of_paragraphs')->value ?? 3;
   $queue->createItem($item);
 }
 
@@ -131,6 +132,7 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
       break;
 
     case 'summarize':
+      $form['field_number_of_paragraphs']['#disabled'] = TRUE;
       $form['field_pdf_text']['#disabled'] = TRUE;
       unset($form['field_pdf_text']['widget'][$form['field_pdf_text']['widget']['#max_delta']]);
       unset($form['field_pdf_text']['widget']['add_more']);
@@ -140,6 +142,7 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
       break;
 
     case 'summarized':
+      $form['field_number_of_paragraphs']['#disabled'] = TRUE;
       $form['field_pdf_text']['#disabled'] = TRUE;
       unset($form['field_pdf_text']['widget'][$form['field_pdf_text']['widget']['#max_delta']]);
       unset($form['field_pdf_text']['widget']['add_more']);

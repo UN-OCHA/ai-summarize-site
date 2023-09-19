@@ -52,6 +52,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
   public function processItem($data) {
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
+    $num_paragraphs = $data->num_paragraphs;
+
     if (empty($nid)) {
       return;
     }
@@ -83,20 +85,21 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       $text = $pdf_text->value;
 
       if (strlen($text) < 100) {
+        $results[] = $text;
         continue;
       }
 
       switch ($bot) {
         case 'openai':
-          $results[] = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+          $results[] = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
           break;
 
         case 'azure_trained':
-          $results[] = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+          $results[] = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
           break;
 
         case 'bedrock':
-          $results[] = $this->sendToBedRock("Summerize the following text in 3 paragraphs:\n\n" . $text);
+          $results[] = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
           break;
       }
     }
@@ -110,15 +113,15 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
 
     switch ($bot) {
       case 'openai':
-        $summary = $this->sendToOpenAi("Summerize the following text in 5 paragraphs:\n\n" . $text);
+        $summary = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
         break;
 
       case 'azure_trained':
-        $summary = $this->sendToAzureAi("Summerize the following text in 5 paragraphs:\n\n" . $text);
+        $summary = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
         break;
 
       case 'bedrock':
-        $summary = $this->sendToBedRock("Summerize the following text in 5 paragraphs:\n\n" . $text);
+        $summary = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
         break;
     }
 
@@ -137,7 +140,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         'messages' => [
           [
             'role' => 'user',
-            'content' => "Summerize the following text in 3 paragraphs:\n\n" . $text,
+            'content' => $text,
           ],
         ],
         'temperature' => .2,

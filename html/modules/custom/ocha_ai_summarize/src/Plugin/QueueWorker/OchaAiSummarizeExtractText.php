@@ -61,6 +61,7 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
    */
   public function processItem($data) {
     $nid = $data->nid;
+
     if (empty($nid)) {
       return;
     }
