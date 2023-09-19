@@ -6,8 +6,8 @@ dependencies:
     - field.field.node.summary.field_ai_brain
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_number_of_paragraphs
-    - field.field.node.summary.field_pdf
-    - field.field.node.summary.field_pdf_text
+    - field.field.node.summary.field_document
+    - field.field.node.summary.field_document_text
     - field.field.node.summary.field_summary
     - node.type.summary
   module:
@@ -41,20 +41,20 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
-  field_number_of_paragraphs:
-    type: list_default
-    label: inline
-    settings: {  }
-    third_party_settings: {  }
-    weight: 3
-    region: content
-  field_pdf:
+  field_document:
     type: file_default
     label: inline
     settings:
       use_description_as_link_text: true
     third_party_settings: {  }
     weight: 2
+    region: content
+  field_number_of_paragraphs:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
     region: content
   field_summary:
     type: basic_string
@@ -69,5 +69,5 @@ content:
     weight: 6
     region: content
 hidden:
-  field_pdf_text: true
+  field_document_text: true
   langcode: true

@@ -16,6 +16,11 @@ type_settings:
       weight: 3
       published: false
       default_revision: false
+    document_uploaded:
+      label: 'Document uploaded'
+      weight: -3
+      published: false
+      default_revision: false
     draft:
       label: Draft
       weight: -4
@@ -24,11 +29,6 @@ type_settings:
     extract_text:
       label: 'Extract text'
       weight: -2
-      published: false
-      default_revision: false
-    pdf_uploaded:
-      label: 'PDF uploaded'
-      weight: -3
       published: false
       default_revision: false
     published:
@@ -64,18 +64,18 @@ type_settings:
         - archived
       to: published
       weight: 3
+    document_uploaded:
+      label: 'document uploaded'
+      from:
+        - draft
+      to: document_uploaded
+      weight: -5
     extrat_text:
       label: 'Extrat text'
       from:
-        - pdf_uploaded
+        - document_uploaded
       to: extract_text
       weight: -4
-    pdf_uploaded:
-      label: 'PDF uploaded'
-      from:
-        - draft
-      to: pdf_uploaded
-      weight: -5
     published:
       label: Published
       from:

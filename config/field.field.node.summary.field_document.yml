@@ -3,15 +3,15 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_pdf
+    - field.storage.node.field_document
     - node.type.summary
   module:
     - file
-id: node.summary.field_pdf
-field_name: field_pdf
+id: node.summary.field_document
+field_name: field_document
 entity_type: node
 bundle: summary
-label: PDF
+label: Document
 description: ''
 required: true
 translatable: false

@@ -9,7 +9,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Extract text from a PDF file.
+ * Extract text from a document file.
  *
  * @QueueWorker(
  *   id = "ocha_ai_summarize_summarize",
@@ -75,14 +75,14 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
-    if ($node->field_pdf_text->isEmpty()) {
+    if ($node->field_document_text->isEmpty()) {
       return;
     }
 
     // Summarize each page.
     $results = [];
-    foreach ($node->field_pdf_text as $pdf_text) {
-      $text = $pdf_text->value;
+    foreach ($node->field_document_text as $document_text) {
+      $text = $document_text->value;
 
       if (strlen($text) < 100) {
         $results[] = $text;

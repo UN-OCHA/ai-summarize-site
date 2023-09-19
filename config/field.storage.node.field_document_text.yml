@@ -4,8 +4,8 @@ status: true
 dependencies:
   module:
     - node
-id: node.field_pdf_text
-field_name: field_pdf_text
+id: node.field_document_text
+field_name: field_document_text
 entity_type: node
 type: string_long
 settings:

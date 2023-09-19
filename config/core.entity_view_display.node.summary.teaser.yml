@@ -7,8 +7,8 @@ dependencies:
     - field.field.node.summary.field_ai_brain
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_number_of_paragraphs
-    - field.field.node.summary.field_pdf
-    - field.field.node.summary.field_pdf_text
+    - field.field.node.summary.field_document
+    - field.field.node.summary.field_document_text
     - field.field.node.summary.field_summary
     - node.type.summary
   module:
@@ -31,8 +31,8 @@ content:
 hidden:
   field_ai_brain: true
   field_automatic_mode: true
+  field_document: true
+  field_document_text: true
   field_number_of_paragraphs: true
-  field_pdf: true
-  field_pdf_text: true
   field_summary: true
   langcode: true

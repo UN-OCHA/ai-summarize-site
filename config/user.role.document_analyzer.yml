@@ -10,8 +10,8 @@ dependencies:
     - node
     - node_view_permissions
     - system
-id: pdf_analyzer
-label: 'PDF Analyzer'
+id: document_analyzer
+label: 'Document Analyzer'
 weight: -6
 is_admin: null
 permissions:
@@ -20,8 +20,8 @@ permissions:
   - 'delete own summary content'
   - 'edit own summary content'
   - 'use summarize transition archive'
+  - 'use summarize transition document_uploaded'
   - 'use summarize transition extrat_text'
-  - 'use summarize transition pdf_uploaded'
   - 'use summarize transition published'
   - 'use summarize transition summarize'
   - 'use summarize transition summarized_update'

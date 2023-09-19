@@ -3,12 +3,12 @@ langcode: en
 status: true
 dependencies:
   config:
-    - user.role.pdf_analyzer
+    - user.role.document_analyzer
   module:
     - user
-id: user_add_role_action.pdf_analyzer
-label: 'Add the PDF Analyzer role to the selected user(s)'
+id: user_add_role_action.document_analyzer
+label: 'Add the Document Analyzer role to the selected user(s)'
 type: user
 plugin: user_add_role_action
 configuration:
-  rid: pdf_analyzer
+  rid: document_analyzer

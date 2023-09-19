@@ -10,11 +10,11 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Extract text from a PDF file.
+ * Extract text from a document file.
  *
  * @QueueWorker(
  *   id = "ocha_ai_summarize_textract",
- *   title = @Translation("Extract text from a PDF file using AWS Textract"),
+ *   title = @Translation("Extract text from a document file using AWS Textract"),
  *   cron = {"time" = 30}
  * )
  */
@@ -81,12 +81,12 @@ class OchaAiSummarizeTextract extends QueueWorkerBase implements ContainerFactor
       return;
     }
 
-    if (!$node->field_pdf_text->isEmpty()) {
+    if (!$node->field_document_text->isEmpty()) {
       return;
     }
 
     /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $file_item */
-    $file_item = $node->get('field_pdf')->first() ?? NULL;
+    $file_item = $node->get('field_document')->first() ?? NULL;
     if (!$file_item) {
       return;
     }
@@ -101,7 +101,7 @@ class OchaAiSummarizeTextract extends QueueWorkerBase implements ContainerFactor
 
     $text = ocha_ai_summarize_texttract($absolute_path);
     // Split in BLOB of 3000 characters.
-    $node->set('field_pdf_text', $text);
+    $node->set('field_document_text', $text);
     $node->set('moderation_state', 'text_extracted');
     $node->save();
   }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Use AI to summarize PDF files.
+ * Use AI to summarize documents.
  */
 
 use Aws\Credentials\Credentials;
@@ -51,7 +51,7 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
 
   $queue_name = '';
   switch ($current_state) {
-    case 'pdf_uploaded':
+    case 'document_uploaded':
       if ($automatic_mode) {
         $entity->set('moderation_state', 'extract_text');
         $entity->save();
@@ -105,10 +105,10 @@ function ocha_ai_summarize_form_node_summary_edit_form_alter(&$form, FormStateIn
  */
 function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_summary_form') {
-    $form['field_pdf_text']['#access'] = FALSE;
+    $form['field_document_text']['#access'] = FALSE;
     $form['field_summary']['#access'] = FALSE;
     $form['moderation_state']['#access'] = FALSE;
-    $form['moderation_state']['widget'][0]['state']['#default_value'] = 'pdf_uploaded';
+    $form['moderation_state']['widget'][0]['state']['#default_value'] = 'document_uploaded';
     return;
   }
 
@@ -120,9 +120,9 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
 
   switch ($current_state) {
     case 'draft':
-    case 'pdf_uploaded':
+    case 'document_uploaded':
     case 'extract_text':
-      $form['field_pdf_text']['#access'] = FALSE;
+      $form['field_document_text']['#access'] = FALSE;
       $form['field_summary']['#access'] = FALSE;
       $form['moderation_state']['#access'] = FALSE;
       break;
@@ -133,9 +133,9 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
 
     case 'summarize':
       $form['field_number_of_paragraphs']['#disabled'] = TRUE;
-      $form['field_pdf_text']['#disabled'] = TRUE;
-      unset($form['field_pdf_text']['widget'][$form['field_pdf_text']['widget']['#max_delta']]);
-      unset($form['field_pdf_text']['widget']['add_more']);
+      $form['field_document_text']['#disabled'] = TRUE;
+      unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
+      unset($form['field_document_text']['widget']['add_more']);
 
       $form['field_summary']['#access'] = FALSE;
       $form['moderation_state']['#access'] = FALSE;
@@ -143,9 +143,9 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
 
     case 'summarized':
       $form['field_number_of_paragraphs']['#disabled'] = TRUE;
-      $form['field_pdf_text']['#disabled'] = TRUE;
-      unset($form['field_pdf_text']['widget'][$form['field_pdf_text']['widget']['#max_delta']]);
-      unset($form['field_pdf_text']['widget']['add_more']);
+      $form['field_document_text']['#disabled'] = TRUE;
+      unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
+      unset($form['field_document_text']['widget']['add_more']);
 
       $form['field_summary']['#disabled'] = TRUE;
       break;
@@ -167,15 +167,15 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
 
   $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
   if (!$content_moderation_state) {
-    $active = 'pdf_uploaded';
+    $active = 'document_uploaded';
   }
   else {
     $active = $content_moderation_state->get('moderation_state')->value;
   }
 
   $states = [
-    'pdf_uploaded' => [
-      '#markup' => 'PDF uploaded',
+    'document_uploaded' => [
+      '#markup' => 'Document uploaded',
       '#wrapper_attributes' => [
         'class' => [],
       ],
