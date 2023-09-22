@@ -583,3 +583,43 @@ function ocha_ai_summarize_http_call_bedrock($prompt) {
   $body = $response->getBody() . '';
   return json_decode($body, TRUE);
 }
+
+/**
+ * Make chat call to Claude.
+ */
+function ocha_ai_summarize_http_call_claude($prompt) {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $endpoint = $config->get('claude_endpoint');
+  $api_key = $config->get('claude_api_key');
+  $claude_version = $config->get('claude_version');
+
+  $headers = [
+    'Content-Type' => 'application/json',
+    'Accept' => 'application/json',
+    'anthropic-version' => $claude_version,
+    'x-api-key' => $api_key,
+  ];
+
+  $body = [
+    'model' => 'claude-2',
+    'prompt' => $prompt,
+    "stop_sequences" => [
+      "\\n\\nHuman:",
+    ],
+    'temperature' => 0.1,
+    'max_tokens_to_sample' => 2500,
+  ];
+
+  $http_client = \Drupal::httpClient();
+  $response = $http_client->request(
+    'POST',
+    $endpoint,
+    [
+      'headers' => $headers,
+      'json' => $body,
+    ],
+  );
+
+  $body = $response->getBody() . '';
+  return json_decode($body, TRUE);
+}

@@ -20,6 +20,9 @@ settings:
     -
       value: bedrock
       label: 'BedRock (Titan)'
+    -
+      value: claude
+      label: Claude
   allowed_values_function: ''
 module: options
 locked: false

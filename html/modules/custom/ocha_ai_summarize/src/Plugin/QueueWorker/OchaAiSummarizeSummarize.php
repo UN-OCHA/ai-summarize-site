@@ -79,50 +79,62 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
-    // Summarize each page.
-    $results = [];
-    foreach ($node->field_document_text as $document_text) {
-      $text = $document_text->value;
+    // Claude can handle all text at once.
+    if ($bot == 'claude') {
+      $text = '';
+      foreach ($node->field_document_text as $document_text) {
+        $text = $document_text->value . "\n";
+      }
 
-      if (strlen($text) < 100) {
-        $results[] = $text;
-        continue;
+      $summary = $this->sendToClaudeAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+    }
+    else {
+      // Summarize each page.
+      $results = [];
+      foreach ($node->field_document_text as $document_text) {
+        $text = $document_text->value;
+
+        if (strlen($text) < 100) {
+          $results[] = $text;
+          continue;
+        }
+
+        switch ($bot) {
+          case 'openai':
+            $results[] = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            break;
+
+          case 'azure_trained':
+            $results[] = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            break;
+
+          case 'bedrock':
+            $results[] = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            break;
+
+        }
+      }
+
+      // Summarize the summaries.
+      $text = '';
+      foreach ($results as $row) {
+        $text .= $row;
+        $text .= "\n";
       }
 
       switch ($bot) {
         case 'openai':
-          $results[] = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
           break;
 
         case 'azure_trained':
-          $results[] = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
           break;
 
         case 'bedrock':
-          $results[] = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
           break;
       }
-    }
-
-    // Summarize the summaries.
-    $text = '';
-    foreach ($results as $row) {
-      $text .= $row;
-      $text .= "\n";
-    }
-
-    switch ($bot) {
-      case 'openai':
-        $summary = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
-        break;
-
-      case 'azure_trained':
-        $summary = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
-        break;
-
-      case 'bedrock':
-        $summary = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
-        break;
     }
 
     $node->set('field_summary', $summary);
@@ -179,6 +191,17 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
   protected function sendToBedRock($text) : string {
     $result = ocha_ai_summarize_http_call_bedrock($text);
     return $result['results'][0]['outputText'] ?? '';
+  }
+
+  /**
+   * Send query to Claude AI.
+   */
+  protected function sendToClaudeAi($text) : string {
+    $prompt = "\n\nHuman: $text\n\nAssistant:";
+
+    $result = ocha_ai_summarize_http_call_claude($prompt);
+
+    return $result['completion'] ?? '';
   }
 
 }
