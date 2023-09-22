@@ -16,6 +16,10 @@ $config['ocha_ai_summarize.settings']['bedrock_endpoint'] = 'https://bedrock.us-
 $config['ocha_ai_summarize.settings']['bedrock_model'] = 'amazon.titan-tg1-large';
 $config['ocha_ai_summarize.settings']['bedrock_access_key'] = 'x1';
 $config['ocha_ai_summarize.settings']['bedrock_secret_key'] = 'x2';
+
+$config['ocha_ai_summarize.settings']['claude_endpoint'] = 'https://api.anthropic.com/v1/complete';
+$config['ocha_ai_summarize.settings']['claude_version'] = '2023-06-01';
+$config['ocha_ai_summarize.settings']['claude_api_key'] = 'zz';
 ```
 
 ## Cron
