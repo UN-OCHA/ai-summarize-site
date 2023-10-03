@@ -16,6 +16,7 @@ permissions:
   - 'access user profiles'
   - 'administer users'
   - 'edit any summary content'
+  - 'view any action_points content'
   - 'view any summary content'
   - 'view any unpublished content'
   - 'view latest version'

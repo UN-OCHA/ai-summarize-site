@@ -16,4 +16,6 @@ permissions:
   - 'access content'
   - 'view any page content'
   - 'view media'
+  - 'view own action_points content'
   - 'view own page content'
+  - 'view own summary content'

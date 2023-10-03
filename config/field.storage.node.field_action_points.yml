@@ -1,0 +1,19 @@
+uuid: 01ded4be-e97d-4e0d-bdbc-e7c8707e661f
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_action_points
+field_name: field_action_points
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,66 @@
+uuid: 15038d49-cf49-4566-b9f7-6b14cbbf04e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.action_points.field_action_points
+    - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_automatic_mode
+    - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_text
+    - node.type.action_points
+  module:
+    - file
+    - options
+    - text
+    - user
+id: node.action_points.default
+targetEntityType: node
+bundle: action_points
+mode: default
+content:
+  content_moderation_control:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_action_points:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_ai_brain:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_automatic_mode:
+    type: boolean
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_document:
+    type: file_default
+    label: inline
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 5
+    region: content
+hidden:
+  field_document_text: true
+  langcode: true

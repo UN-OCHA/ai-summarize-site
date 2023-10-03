@@ -3,7 +3,9 @@ langcode: en
 status: true
 dependencies:
   config:
+    - node.type.action_points
     - node.type.summary
+    - workflows.workflow.action_points
     - workflows.workflow.summarize
   module:
     - content_moderation
@@ -16,9 +18,18 @@ weight: -6
 is_admin: null
 permissions:
   - 'access content'
+  - 'create action_points content'
   - 'create summary content'
+  - 'delete own action_points content'
   - 'delete own summary content'
+  - 'edit own action_points content'
   - 'edit own summary content'
+  - 'use action_points transition action_points'
+  - 'use action_points transition action_points_created_update'
+  - 'use action_points transition document_uploaded'
+  - 'use action_points transition extrat_text'
+  - 'use action_points transition published'
+  - 'use action_points transition text_extracted_update'
   - 'use summarize transition archive'
   - 'use summarize transition document_uploaded'
   - 'use summarize transition extrat_text'
@@ -26,6 +37,7 @@ permissions:
   - 'use summarize transition summarize'
   - 'use summarize transition summarized_update'
   - 'use summarize transition text_extracted_update'
+  - 'view action_points revisions'
   - 'view own summary content'
   - 'view own unpublished content'
   - 'view summary revisions'

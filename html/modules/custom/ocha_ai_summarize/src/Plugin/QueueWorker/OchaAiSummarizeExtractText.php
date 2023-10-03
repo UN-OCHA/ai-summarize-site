@@ -69,7 +69,7 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
     /** @var \Drupal\node\Entity\Node $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
-    if (!$node || $node->bundle() !== 'summary') {
+    if (!$node) {
       return;
     }
 

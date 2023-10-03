@@ -1,0 +1,23 @@
+uuid: 6aec51f7-796d-435c-8727-239d87fa5b0f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_ai_brain
+    - node.type.action_points
+  module:
+    - options
+id: node.action_points.field_ai_brain
+field_name: field_ai_brain
+entity_type: node
+bundle: action_points
+label: 'AI Brain'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: openai
+default_value_callback: ''
+settings: {  }
+field_type: list_string

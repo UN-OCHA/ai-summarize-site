@@ -14,4 +14,6 @@ is_admin: false
 permissions:
   - 'access content'
   - 'view any page content'
+  - 'view own action_points content'
   - 'view own page content'
+  - 'view own summary content'

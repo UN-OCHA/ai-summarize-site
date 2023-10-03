@@ -1,0 +1,31 @@
+uuid: 9977694b-b1f0-4006-b537-c9efd6eb76b7
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.action_points.field_action_points
+    - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_automatic_mode
+    - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_text
+    - node.type.action_points
+  module:
+    - user
+id: node.action_points.teaser
+targetEntityType: node
+bundle: action_points
+mode: teaser
+content:
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_action_points: true
+  field_ai_brain: true
+  field_automatic_mode: true
+  field_document: true
+  field_document_text: true
+  langcode: true

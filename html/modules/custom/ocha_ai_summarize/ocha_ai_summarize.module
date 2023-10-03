@@ -29,6 +29,22 @@ function ocha_ai_summarize_node_insert(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update(EntityInterface $entity) {
+  switch ($entity->bundle()) {
+    case 'summary':
+      ocha_ai_summarize_node_update_summary($entity);
+      break;
+
+    case 'action_points':
+      ocha_ai_summarize_node_update_action_points($entity);
+      break;
+
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
   if ($entity->bundle() !== 'summary') {
     return;
   }
@@ -84,6 +100,67 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
   $item->nid = $entity->id();
   $item->brain = $entity->get('field_ai_brain')->value;
   $item->num_paragraphs = $entity->get('field_number_of_paragraphs')->value ?? 3;
+  $queue->createItem($item);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
+  if ($entity->bundle() !== 'action_points') {
+    return;
+  }
+
+  /** @var \Drupal\content_moderation\ModerationInformationInterface $moderation_info */
+  $moderation_info = Drupal::service('content_moderation.moderation_information');
+
+  // Check to see if the content is moderated or not.
+  $is_moderated = $moderation_info->isModeratedEntity($entity);
+
+  if (!$is_moderated) {
+    return;
+  }
+
+  $current_state = $entity->moderation_state->value;
+  $automatic_mode = $entity->field_automatic_mode->value;
+
+  if (!$current_state) {
+    return;
+  }
+
+  $queue_name = '';
+  switch ($current_state) {
+    case 'document_uploaded':
+      if ($automatic_mode) {
+        $entity->set('moderation_state', 'extract_text');
+        $entity->save();
+      }
+      break;
+
+    case 'extract_text':
+      $queue_name = 'ocha_ai_summarize_extract_text';
+      break;
+
+    case 'text_extracted':
+      if ($automatic_mode) {
+        $entity->set('moderation_state', 'action_points');
+        $entity->save();
+      }
+      break;
+
+    case 'action_points':
+      $queue_name = 'ocha_ai_summarize_action_points';
+      break;
+  }
+
+  if (empty($queue_name)) {
+    return;
+  }
+
+  $queue = \Drupal::service('queue')->get($queue_name);
+  $item = new \stdClass();
+  $item->nid = $entity->id();
+  $item->brain = $entity->get('field_ai_brain')->value;
   $queue->createItem($item);
 }
 
@@ -155,9 +232,90 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ocha_ai_summarize_form_node_action_points_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  ocha_ai_summarize_form_node_action_points_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ocha_ai_summarize_form_node_action_points_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  ocha_ai_summarize_form_node_action_points_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Alter action_points form based on state.
+ */
+function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'node_action_points_form') {
+    $form['field_document_text']['#access'] = FALSE;
+    $form['field_action_points']['#access'] = FALSE;
+    $form['moderation_state']['#access'] = FALSE;
+    $form['moderation_state']['widget'][0]['state']['#default_value'] = 'document_uploaded';
+    return;
+  }
+
+  $node = $form_state->getFormObject()->getEntity();
+  $current_state = $node->moderation_state->value;
+  if (!$current_state) {
+    return;
+  }
+
+  switch ($current_state) {
+    case 'draft':
+    case 'document_uploaded':
+    case 'extract_text':
+      $form['field_document_text']['#access'] = FALSE;
+      $form['field_action_points']['#access'] = FALSE;
+      $form['moderation_state']['#access'] = FALSE;
+      break;
+
+    case 'text_extracted':
+      $form['field_action_points']['#access'] = FALSE;
+      break;
+
+    case 'action_points':
+      $form['field_document_text']['#disabled'] = TRUE;
+      unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
+      unset($form['field_document_text']['widget']['add_more']);
+
+      $form['field_action_points']['#access'] = FALSE;
+      $form['moderation_state']['#access'] = FALSE;
+      break;
+
+    case 'action_points_created':
+      $form['field_document_text']['#disabled'] = TRUE;
+      unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
+      unset($form['field_document_text']['widget']['add_more']);
+
+      $form['field_action_points']['#disabled'] = TRUE;
+      break;
+
+  }
+}
+
+/**
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  switch ($entity->bundle()) {
+    case 'summary':
+      ocha_ai_summarize_node_view_summary($build, $entity, $display, $view_mode);
+      break;
+
+    case 'action_points':
+      ocha_ai_summarize_node_view_action_points($build, $entity, $display, $view_mode);
+      break;
+
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   if ($entity->bundle() !== 'summary') {
     return;
   }
@@ -201,6 +359,88 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
     ],
     'summarized' => [
       '#markup' => 'Summarized',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+  ];
+
+  $future = FALSE;
+  foreach ($states as $key => &$state) {
+    if ($key == $active) {
+      $state['#wrapper_attributes']['class'] = ['active'];
+      $future = TRUE;
+    }
+    else {
+      if (!$future) {
+        $state['#wrapper_attributes']['class'] = ['done'];
+      }
+      else {
+        $state['#wrapper_attributes']['class'] = ['to-do'];
+      }
+    }
+  }
+
+  $build['workflow'] = [
+    '#theme' => 'item_list',
+    '#attributes' => [
+      'class' => [
+        'workflow-steps',
+      ],
+    ],
+    '#list_type' => 'ol',
+    '#items' => array_values($states),
+    '#weight' => -100,
+  ];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($entity->bundle() !== 'action_points') {
+    return;
+  }
+
+  if ($entity->isPublished()) {
+    return;
+  }
+
+  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
+  if (!$content_moderation_state) {
+    $active = 'document_uploaded';
+  }
+  else {
+    $active = $content_moderation_state->get('moderation_state')->value;
+  }
+
+  $states = [
+    'document_uploaded' => [
+      '#markup' => 'Document uploaded',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'extract_text' => [
+      '#markup' => 'Extract text',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'text_extracted' => [
+      '#markup' => 'Text extracted',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'action_points' => [
+      '#markup' => 'Get action points',
+      '#wrapper_attributes' => [
+        'class' => [],
+      ],
+    ],
+    'action_points_created' => [
+      '#markup' => 'Action points created',
       '#wrapper_attributes' => [
         'class' => [],
       ],

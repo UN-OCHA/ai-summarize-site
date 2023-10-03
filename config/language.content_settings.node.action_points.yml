@@ -1,0 +1,11 @@
+uuid: d3403fab-fa8f-4fbb-8722-b333b2845827
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.action_points
+id: node.action_points
+target_entity_type_id: node
+target_bundle: action_points
+default_langcode: site_default
+language_alterable: false
