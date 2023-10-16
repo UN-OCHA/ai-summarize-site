@@ -1,0 +1,14 @@
+uuid: b4c53584-6d8b-4277-aa80-dcfa59ec5b5f
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.document_analyzer
+  module:
+    - user
+id: user_remove_role_action.document_analyzer
+label: 'Remove the document Analyzer role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: document_analyzer

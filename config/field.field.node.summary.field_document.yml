@@ -1,0 +1,27 @@
+uuid: f7795441-8be4-402d-8e0d-c0cf9166b607
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_document
+    - node.type.summary
+  module:
+    - file
+id: node.summary.field_document
+field_name: field_document
+entity_type: node
+bundle: summary
+label: Document
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'pdf docx odt rtf'
+  max_filesize: ''
+  description_field: false
+field_type: file

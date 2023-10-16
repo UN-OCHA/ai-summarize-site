@@ -5,8 +5,8 @@ dependencies:
   module:
     - file
     - node
-id: node.field_pdf
-field_name: field_pdf
+id: node.field_document
+field_name: field_document
 entity_type: node
 type: file
 settings:

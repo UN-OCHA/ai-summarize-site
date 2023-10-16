@@ -1,0 +1,23 @@
+uuid: 887881a1-a220-4d1d-b23f-95f8c51fea83
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_number_of_paragraphs
+    - node.type.summary
+  module:
+    - options
+id: node.summary.field_number_of_paragraphs
+field_name: field_number_of_paragraphs
+entity_type: node
+bundle: summary
+label: 'Number of paragraphs'
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    value: 5
+default_value_callback: ''
+settings: {  }
+field_type: list_integer

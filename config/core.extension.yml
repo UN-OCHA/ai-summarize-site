@@ -15,7 +15,6 @@ module:
   ctools: 0
   datetime: 0
   datetime_range: 0
-  devel_php: 0
   dynamic_page_cache: 0
   editor: 0
   entity_reference_revisions: 0
@@ -45,6 +44,7 @@ module:
   menu_ui: 0
   mysql: 0
   node: 0
+  node_view_permissions: 0
   ocha_ai_summarize: 0
   options: 0
   page_cache: 0

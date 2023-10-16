@@ -1,0 +1,19 @@
+uuid: afdce9d3-772e-445e-a4b6-7567f31c7f0c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_document_text
+    - node.type.action_points
+id: node.action_points.field_document_text
+field_name: field_document_text
+entity_type: node
+bundle: action_points
+label: 'Document text'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

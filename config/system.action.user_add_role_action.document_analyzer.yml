@@ -1,0 +1,14 @@
+uuid: 46fae3d7-ce2c-407c-9d81-c2b8b16a3a57
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.document_analyzer
+  module:
+    - user
+id: user_add_role_action.document_analyzer
+label: 'Add the Document Analyzer role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: document_analyzer

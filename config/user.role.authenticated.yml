@@ -4,13 +4,18 @@ status: true
 dependencies:
   module:
     - media
+    - node_view_permissions
     - system
 _core:
   default_config_hash: dJ0L2DNSj5q6XVZAGsuVDpJTh5UeYkIPwKrUOOpr8YI
 id: authenticated
 label: 'Authenticated user'
-weight: 1
+weight: -9
 is_admin: false
 permissions:
   - 'access content'
+  - 'view any page content'
   - 'view media'
+  - 'view own action_points content'
+  - 'view own page content'
+  - 'view own summary content'

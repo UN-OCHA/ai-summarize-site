@@ -10,15 +10,15 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Extract text from a document.
+ * Extract text from a document file.
  *
  * @QueueWorker(
- *   id = "ocha_ai_summarize_extract_text",
- *   title = @Translation("Extract text from a document"),
+ *   id = "ocha_ai_summarize_textract",
+ *   title = @Translation("Extract text from a document file using AWS Textract"),
  *   cron = {"time" = 30}
  * )
  */
-class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class OchaAiSummarizeTextract extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
    * The entity type manager.
@@ -61,7 +61,6 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
    */
   public function processItem($data) {
     $nid = $data->nid;
-
     if (empty($nid)) {
       return;
     }
@@ -69,7 +68,7 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
     /** @var \Drupal\node\Entity\Node $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
-    if (!$node) {
+    if (!$node || $node->bundle() !== 'summary') {
       return;
     }
 
@@ -98,16 +97,10 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
       return;
     }
 
-    // PDF or else.
     $absolute_path = $this->fileSystem->realpath($file->getFileUri());
-    $file_parts = pathinfo($absolute_path);
-    if (strtolower($file_parts['extension']) == 'pdf') {
-      $text = ocha_ai_summarize_extract_pages_from_pdf($absolute_path);
-    }
-    else {
-      $text = ocha_ai_summarize_extract_pages_from_doc($absolute_path);
-    }
 
+    $text = ocha_ai_summarize_texttract($absolute_path);
+    // Split in BLOB of 3000 characters.
     $node->set('field_document_text', $text);
     $node->set('moderation_state', 'text_extracted');
     $node->save();

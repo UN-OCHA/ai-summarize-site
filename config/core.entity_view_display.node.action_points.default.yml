@@ -1,28 +1,35 @@
-uuid: d4f02ed3-411d-4fd0-a867-9a681762f4a1
+uuid: 15038d49-cf49-4566-b9f7-6b14cbbf04e4
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.summary.field_ai_brain
-    - field.field.node.summary.field_automatic_mode
-    - field.field.node.summary.field_number_of_paragraphs
-    - field.field.node.summary.field_document
-    - field.field.node.summary.field_document_text
-    - field.field.node.summary.field_summary
-    - node.type.summary
+    - field.field.node.action_points.field_action_points
+    - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_automatic_mode
+    - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_text
+    - node.type.action_points
   module:
     - file
     - options
+    - text
     - user
-id: node.summary.default
+id: node.action_points.default
 targetEntityType: node
-bundle: summary
+bundle: action_points
 mode: default
 content:
   content_moderation_control:
     settings: {  }
     third_party_settings: {  }
-    weight: 5
+    weight: 4
+    region: content
+  field_action_points:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
     region: content
   field_ai_brain:
     type: list_default
@@ -49,24 +56,10 @@ content:
     third_party_settings: {  }
     weight: 2
     region: content
-  field_number_of_paragraphs:
-    type: list_default
-    label: inline
-    settings: {  }
-    third_party_settings: {  }
-    weight: 3
-    region: content
-  field_summary:
-    type: basic_string
-    label: hidden
-    settings: {  }
-    third_party_settings: {  }
-    weight: 4
-    region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 6
+    weight: 5
     region: content
 hidden:
   field_document_text: true

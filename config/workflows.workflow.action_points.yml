@@ -1,16 +1,26 @@
-uuid: 001b2cac-1ba9-48f6-9139-3da152852b02
+uuid: c2c66e40-565a-403b-8597-6b8ec8db4d2b
 langcode: en
 status: true
 dependencies:
   config:
-    - node.type.summary
+    - node.type.action_points
   module:
     - content_moderation
-id: summarize
-label: Summarize
+id: action_points
+label: 'Action points'
 type: content_moderation
 type_settings:
   states:
+    action_points:
+      label: 'Get action points'
+      weight: 0
+      published: false
+      default_revision: false
+    action_points_created:
+      label: 'Action points created'
+      weight: 1
+      published: false
+      default_revision: false
     archived:
       label: Archived
       weight: 3
@@ -36,22 +46,30 @@ type_settings:
       weight: 2
       published: true
       default_revision: true
-    summarize:
-      label: Summarize
-      weight: 0
-      published: false
-      default_revision: false
-    summarized:
-      label: Summarized
-      weight: 1
-      published: false
-      default_revision: false
     text_extracted:
       label: 'Text extracted'
       weight: -1
       published: false
       default_revision: false
   transitions:
+    action_points:
+      label: action_points
+      from:
+        - text_extracted
+      to: action_points
+      weight: -1
+    action_points_created:
+      label: action_points_created
+      from:
+        - action_points
+      to: action_points_created
+      weight: 0
+    action_points_created_update:
+      label: 'action_points_created (update)'
+      from:
+        - action_points_created
+      to: action_points_created
+      weight: 4
     archive:
       label: Archive
       from:
@@ -79,27 +97,9 @@ type_settings:
     published:
       label: Published
       from:
-        - summarized
+        - action_points_created
       to: published
       weight: 1
-    summarize:
-      label: Summarize
-      from:
-        - text_extracted
-      to: summarize
-      weight: -1
-    summarized:
-      label: Summarized
-      from:
-        - summarize
-      to: summarized
-      weight: 0
-    summarized_update:
-      label: 'Summarized (update)'
-      from:
-        - summarized
-      to: summarized
-      weight: 4
     text_extracted:
       label: 'Text extracted'
       from:
@@ -114,5 +114,5 @@ type_settings:
       weight: -2
   entity_types:
     node:
-      - summary
+      - action_points
   default_moderation_state: draft

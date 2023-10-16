@@ -12,12 +12,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Extract text from a document file.
  *
  * @QueueWorker(
- *   id = "ocha_ai_summarize_summarize",
- *   title = @Translation("Use AI to summarize"),
+ *   id = "ocha_ai_summarize_action_points",
+ *   title = @Translation("Use AI to extract action points"),
  *   cron = {"time" = 30}
  * )
  */
-class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
    * The entity type manager.
@@ -52,7 +52,6 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
   public function processItem($data) {
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
-    $num_paragraphs = $data->num_paragraphs;
 
     if (empty($nid)) {
       return;
@@ -61,7 +60,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     /** @var \Drupal\node\Entity\Node $node */
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
 
-    if (!$node || $node->bundle() !== 'summary') {
+    if (!$node || $node->bundle() !== 'action_points') {
       return;
     }
 
@@ -71,13 +70,15 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
-    if ($content_moderation_state->get('moderation_state')->value !== 'summarize') {
+    if ($content_moderation_state->get('moderation_state')->value !== 'action_points') {
       return;
     }
 
     if ($node->field_document_text->isEmpty()) {
       return;
     }
+
+    $prompt = "Extract the action points from the following meeting minutes";
 
     // Claude can handle all text at once.
     if ($bot == 'claude') {
@@ -86,7 +87,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         $text = $document_text->value . "\n";
       }
 
-      $summary = $this->sendToClaudeAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+      $action_points = $this->sendToClaudeAi("$prompt:\n\n" . $text);
     }
     else {
       // Summarize each page.
@@ -101,21 +102,21 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
 
         switch ($bot) {
           case 'openai':
-            $results[] = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
             break;
 
           case 'azure_trained':
-            $results[] = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
             break;
 
           case 'bedrock':
-            $results[] = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToBedRock("Summerize the following text in 3 paragraphs:\n\n" . $text);
             break;
 
         }
       }
 
-      // Summarize the summaries.
+      // Get the action points.
       $text = '';
       foreach ($results as $row) {
         $text .= $row;
@@ -124,21 +125,24 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
 
       switch ($bot) {
         case 'openai':
-          $summary = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $action_points = $this->sendToOpenAi("$prompt:\n\n" . $text);
           break;
 
         case 'azure_trained':
-          $summary = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $action_points = $this->sendToAzureAi("$prompt:\n\n" . $text);
           break;
 
         case 'bedrock':
-          $summary = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $action_points = $this->sendToBedRock("$prompt:\n\n" . $text);
           break;
       }
     }
 
-    $node->set('field_summary', $summary);
-    $node->set('moderation_state', 'summarized');
+    $node->set('field_action_points', [
+      'value' => $action_points,
+      'format' => 'text_editor_simple',
+    ]);
+    $node->set('moderation_state', 'action_points_created');
     $node->save();
   }
 
@@ -172,7 +176,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         'messages' => [
           [
             'role' => 'system',
-            'content' => 'You are an AI assistant that summarizes information.',
+            'content' => 'You are an AI assistant that extracts action points out of meeting minutes.',
           ],
           [
             'role' => 'user',

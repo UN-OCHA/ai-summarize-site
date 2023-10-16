@@ -1,0 +1,23 @@
+uuid: 2a2707bf-8013-4683-972b-0ad787b17223
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_automatic_mode
+    - node.type.summary
+id: node.summary.field_automatic_mode
+field_name: field_automatic_mode
+entity_type: node
+bundle: summary
+label: 'Automatic mode'
+description: 'When enabled will automatically run the whole flow without any user interaction needed.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

@@ -3,14 +3,17 @@ langcode: en
 status: true
 dependencies:
   module:
-    - media
+    - node_view_permissions
     - system
 _core:
   default_config_hash: j5zLMOdJBqC0bMvSdth5UebkprJB8g_2FXHqhfpJzow
 id: anonymous
 label: 'Anonymous user'
-weight: 0
+weight: -10
 is_admin: false
 permissions:
   - 'access content'
-  - 'view media'
+  - 'view any page content'
+  - 'view own action_points content'
+  - 'view own page content'
+  - 'view own summary content'

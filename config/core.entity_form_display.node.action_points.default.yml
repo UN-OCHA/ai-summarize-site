@@ -1,30 +1,37 @@
-uuid: 4268ab4b-6802-4148-ab38-b54f47288ad7
+uuid: b0a337d3-57d1-474e-ab26-2c94eaab3e43
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.summary.field_ai_brain
-    - field.field.node.summary.field_automatic_mode
-    - field.field.node.summary.field_number_of_paragraphs
-    - field.field.node.summary.field_document
-    - field.field.node.summary.field_document_text
-    - field.field.node.summary.field_summary
-    - node.type.summary
-    - workflows.workflow.summarize
+    - field.field.node.action_points.field_action_points
+    - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_automatic_mode
+    - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_text
+    - node.type.action_points
   module:
     - content_moderation
     - file
     - path
-id: node.summary.default
+    - text
+id: node.action_points.default
 targetEntityType: node
-bundle: summary
+bundle: action_points
 mode: default
 content:
   created:
     type: datetime_timestamp
-    weight: 12
+    weight: 8
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_action_points:
+    type: text_textarea
+    weight: 7
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
     third_party_settings: {  }
   field_ai_brain:
     type: options_select
@@ -41,7 +48,7 @@ content:
     third_party_settings: {  }
   field_document:
     type: file_generic
-    weight: 5
+    weight: 4
     region: content
     settings:
       progress_indicator: throbber
@@ -49,20 +56,6 @@ content:
   field_document_text:
     type: string_textarea
     weight: 6
-    region: content
-    settings:
-      rows: 5
-      placeholder: ''
-    third_party_settings: {  }
-  field_number_of_paragraphs:
-    type: options_select
-    weight: 4
-    region: content
-    settings: {  }
-    third_party_settings: {  }
-  field_summary:
-    type: string_textarea
-    weight: 7
     region: content
     settings:
       rows: 5
@@ -77,19 +70,33 @@ content:
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 8
+    weight: 13
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 9
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 9
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 11
+    weight: 14
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 10
     region: content
     settings:
       display_label: true
@@ -104,7 +111,7 @@ content:
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 13
+    weight: 5
     region: content
     settings:
       match_operator: CONTAINS
@@ -113,10 +120,8 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 10
+    weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
-hidden:
-  promote: true
-  sticky: true
+hidden: {  }

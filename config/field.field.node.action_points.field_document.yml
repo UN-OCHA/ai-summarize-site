@@ -1,17 +1,17 @@
-uuid: f7795441-8be4-402d-8e0d-c0cf9166b607
+uuid: 1c2155b9-7720-4954-96bf-9931ea26c918
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_pdf
-    - node.type.summary
+    - field.storage.node.field_document
+    - node.type.action_points
   module:
     - file
-id: node.summary.field_pdf
-field_name: field_pdf
+id: node.action_points.field_document
+field_name: field_document
 entity_type: node
-bundle: summary
-label: PDF
+bundle: action_points
+label: Document
 description: ''
 required: true
 translatable: false
@@ -21,7 +21,7 @@ settings:
   handler: 'default:file'
   handler_settings: {  }
   file_directory: '[date:custom:Y]-[date:custom:m]'
-  file_extensions: pdf
+  file_extensions: 'pdf docx odt rtf'
   max_filesize: ''
   description_field: false
 field_type: file
