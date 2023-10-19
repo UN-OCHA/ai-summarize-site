@@ -45,6 +45,9 @@ LABEL info.humanitarianresponse.build.date=$BUILD_DATE \
       info.humanitarianresponse.build.vcs-url=$VCS_URL \
       info.humanitarianresponse.build.vcs-ref=$VCS_REF
 
+# Add pdfinfo and pdftotext.
+RUN apk add -U --no-cache poppler-utils
+
 COPY --from=builder /srv/www/assets /srv/www/assets/
 COPY --from=builder /srv/www/config /srv/www/config/
 COPY --from=builder /srv/www/config_dev /srv/www/config_dev/
