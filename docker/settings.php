@@ -33,6 +33,7 @@ $databases['default']['default'] = array_filter([
 
 // Inject some settings for local use and/or Drupal sanity checks.
 $settings['config_sync_directory'] = dirname($app_root) . '/config';
+$settings['hash_salt']             = 'sodium-chloride';
 
 /**
   * Load generated settings.
