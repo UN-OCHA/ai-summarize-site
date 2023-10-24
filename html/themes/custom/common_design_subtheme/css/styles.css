@@ -1,3 +1,25 @@
+/**
+ * Global, project-specific styles.
+ */
+
+.field--label-inline {
+  display: flex;
+  margin-block-end: 0.5rem;
+}
+
+.field--label-inline > .field_label {
+  font-weight: bold;
+  margin-inline-end: 0.5rem;
+}
+
+.field--label-inline > .field_label::after {
+  content: ':'
+}
+
+.field--label-inline + .field--name-field-summary {
+  margin-block-start: 1em;
+}
+
 ol.workflow-steps {
   display: flex;
   list-style: none;
@@ -8,23 +30,23 @@ ol.workflow-steps {
   padding: 0;
   padding-bottom: 1rem;
   border-bottom: solid 1px #232323;
+}
 
-  & > li {
-    padding: .5rem;
-  }
+ol.workflow-steps > li {
+  padding: .5rem;
+}
 
-  & > li.done {
-    background-color: #666666;
-    color: #fff;
-    text-decoration: line-through;
-  }
+ol.workflow-steps > li.done {
+  background-color: #666666;
+  color: #fff;
+  text-decoration: line-through;
+}
 
-  & > li.active {
-    background-color: #00ff00;
-  }
+ol.workflow-steps > li.active {
+  background-color: #00ff00;
+}
 
-  & > li.to-do {
-    background-color: #ff004a;
-    color: #fff;
-  }
+ol.workflow-steps > li.to-do {
+  background-color: #ff004a;
+  color: #fff;
 }
