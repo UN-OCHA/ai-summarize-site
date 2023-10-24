@@ -668,7 +668,7 @@ function ocha_ai_summarize_texttract($file_name) {
       ],
     ],
     'FeatureTypes' => [
-      'LAYOUT'
+      'LAYOUT',
     ],
   ];
 
