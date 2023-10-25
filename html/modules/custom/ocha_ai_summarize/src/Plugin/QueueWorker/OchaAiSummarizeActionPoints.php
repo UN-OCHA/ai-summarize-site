@@ -87,6 +87,8 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
         $text = $document_text->value . "\n";
       }
 
+      $text = ocha_ai_summarize_check_length($text, $bot);
+
       $action_points = $this->sendToClaudeAi("$prompt:\n\n" . $text);
     }
     else {
@@ -99,6 +101,8 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
           $results[] = $text;
           continue;
         }
+
+        $text = ocha_ai_summarize_check_length($text, $bot);
 
         switch ($bot) {
           case 'openai':
@@ -122,6 +126,8 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
         $text .= $row;
         $text .= "\n";
       }
+
+      $text = ocha_ai_summarize_check_length($text, $bot);
 
       switch ($bot) {
         case 'openai':

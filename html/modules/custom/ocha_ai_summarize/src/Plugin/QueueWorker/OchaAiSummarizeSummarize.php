@@ -86,6 +86,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         $text = $document_text->value . "\n";
       }
 
+      $text = ocha_ai_summarize_check_length($text, $bot);
       $summary = $this->sendToClaudeAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
     }
     else {
@@ -98,6 +99,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
           $results[] = $text;
           continue;
         }
+
+        $text = ocha_ai_summarize_check_length($text, $bot);
 
         switch ($bot) {
           case 'openai':
@@ -121,6 +124,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         $text .= $row;
         $text .= "\n";
       }
+
+      $text = ocha_ai_summarize_check_length($text, $bot);
 
       switch ($bot) {
         case 'openai':

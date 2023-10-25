@@ -934,3 +934,32 @@ function ocha_ai_summarize_block_access(Block $block, $operation, AccountInterfa
     return AccessResult::neutral();
   }
 }
+
+/**
+ * Check token length and truncate if needed.
+ */
+function ocha_ai_summarize_check_length($text, $bot) {
+  $max_tokens = 42000;
+
+  switch ($bot) {
+    case 'openai':
+      $max_tokens = 16385;
+      break;
+
+    case 'azure_trained':
+      $max_tokens = 8192;
+      break;
+
+    case 'bedrock':
+      $max_tokens = 42000;
+      break;
+  }
+
+  // 1 token ~= 4 characters.
+  if (strlen($text) > 3.5 * $max_tokens) {
+    \Drupal::logger('AI - Max tokens')->warning('Too many tokens needed, string truncated.');
+    $text = substr($text, 0, round(3.5 * $max_tokens));
+  }
+
+  return $text;
+}
