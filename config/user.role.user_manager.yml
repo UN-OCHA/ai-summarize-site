@@ -5,6 +5,7 @@ dependencies:
   config:
     - node.type.summary
   module:
+    - admin_feedback
     - content_moderation
     - node
     - node_view_permissions
@@ -16,6 +17,8 @@ permissions:
   - 'access user profiles'
   - 'administer users'
   - 'edit any summary content'
+  - 'view admin feedback dashboard'
+  - 'view admin feedback detail view'
   - 'view any action_points content'
   - 'view any summary content'
   - 'view any unpublished content'

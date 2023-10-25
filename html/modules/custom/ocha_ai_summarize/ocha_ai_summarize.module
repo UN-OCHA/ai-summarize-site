@@ -9,10 +9,14 @@ use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Aws\Signature\SignatureV4;
 use Aws\Textract\TextractClient;
+use Drupal\block\Entity\Block;
 use Drupal\content_moderation\Entity\ContentModerationState;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use PhpOffice\PhpWord\IOFactory;
@@ -866,4 +870,25 @@ function ocha_ai_summarize_http_call_claude($prompt) {
 
   $body = $response->getBody() . '';
   return json_decode($body, TRUE);
+}
+
+/**
+ * Only show block on final step.
+ */
+function ocha_ai_summarize_block_access(Block $block, $operation, AccountInterface $account) {
+  if ($block->id() == 'common_design_subtheme_adminfeedbackblock') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if (($node instanceof NodeInterface) && !$node->isPublished()) {
+      if ($node->isPublished()) {
+        return AccessResult::neutral();
+      }
+
+      $current_state = $node->moderation_state->value ?? FALSE;
+      if ($current_state != 'summarized' && $current_state != 'action_points_created') {
+        return AccessResult::forbiddenIf(TRUE)->addCacheableDependency($block);
+      }
+    }
+
+    return AccessResult::neutral();
+  }
 }

@@ -2,6 +2,7 @@ _core:
   default_config_hash: R4IF-ClDHXxblLcG0L7MgsLvfBIMAvi_skumNFQwkDc
 module:
   admin_denied: 0
+  admin_feedback: 0
   allowed_formats: 0
   block: 0
   breakpoint: 0

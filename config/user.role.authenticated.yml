@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   module:
+    - admin_feedback
     - media
     - node_view_permissions
     - system
@@ -14,6 +15,7 @@ weight: -9
 is_admin: false
 permissions:
   - 'access content'
+  - 'give feedback'
   - 'view any page content'
   - 'view media'
   - 'view own action_points content'

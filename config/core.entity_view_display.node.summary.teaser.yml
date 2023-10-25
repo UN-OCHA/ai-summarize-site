@@ -6,9 +6,9 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.summary.field_ai_brain
     - field.field.node.summary.field_automatic_mode
-    - field.field.node.summary.field_number_of_paragraphs
     - field.field.node.summary.field_document
     - field.field.node.summary.field_document_text
+    - field.field.node.summary.field_number_of_paragraphs
     - field.field.node.summary.field_summary
     - node.type.summary
   module:

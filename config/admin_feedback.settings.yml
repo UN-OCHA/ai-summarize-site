@@ -1,0 +1,24 @@
+_core:
+  default_config_hash: pqJgvDGFr9oH8uLyHCwoNsJoAYIaEYKESOlYcir_jOU
+initial_question: 'Was this helpful?'
+yes_button: 'Yes'
+yes_response: 'Great! Thank you for the feedback.'
+no_button: 'No'
+no_response: 'Thank you for the feedback.'
+feedback_prompt_on_yes: true
+feedback_prompt_on_no: true
+feedback_prompt: "If you'd like, give us more feedback."
+submit_text: 'Send feedback'
+final_response: 'Thank you!'
+custom_text_response_on_no:
+  value: ''
+  format: text_editor_simple
+feedback_enable_predefined_answers: true
+feedback_predefined_answers:
+  - 'Missing important information'
+  - 'Too much content generated'
+  - 'Too little content generated'
+  - 'All good'
+feedback_allow_cancel:
+  active: false
+  timeout: 3.0
