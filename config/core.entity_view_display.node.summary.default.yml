@@ -71,3 +71,4 @@ content:
 hidden:
   field_document_text: true
   langcode: true
+  private: true
