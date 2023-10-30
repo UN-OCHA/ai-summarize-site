@@ -102,7 +102,7 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
     $absolute_path = $this->fileSystem->realpath($file->getFileUri());
     $file_parts = pathinfo($absolute_path);
     if (strtolower($file_parts['extension']) == 'pdf') {
-      $text = ocha_ai_summarize_extract_pages_from_pdf($absolute_path);
+      $text = ocha_ai_summarize_extract_pages_from_pdf_ocr($absolute_path);
     }
     else {
       $text = ocha_ai_summarize_extract_pages_from_doc($absolute_path);
