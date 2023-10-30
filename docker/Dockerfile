@@ -10,9 +10,6 @@ COPY . /srv/www
 
 WORKDIR /srv/www
 
-# Add pdfinfo and pdftotext.
-RUN apk add -U --no-cache poppler-utils tesseract-ocr
-
 # Clean up previous composer installation and run new one.
 RUN rm -rf ./vendor && composer install --no-interaction --no-dev
 
@@ -45,7 +42,7 @@ LABEL info.humanitarianresponse.build.date=$BUILD_DATE \
       info.humanitarianresponse.build.vcs-url=$VCS_URL \
       info.humanitarianresponse.build.vcs-ref=$VCS_REF
 
-# Add pdfinfo and pdftotext.
+# Add PDF and OCR utilities.
 RUN apk add -U --no-cache poppler-utils tesseract-ocr
 
 COPY --from=builder /srv/www/assets /srv/www/assets/
