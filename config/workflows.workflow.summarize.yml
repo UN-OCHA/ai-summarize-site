@@ -82,6 +82,24 @@ type_settings:
         - summarized
       to: published
       weight: 1
+    reset_flow_extract:
+      label: 'Reset flow - extract'
+      from:
+        - archived
+        - published
+        - summarize
+        - summarized
+        - text_extracted
+      to: extract_text
+      weight: 5
+    reset_flow_summarize:
+      label: 'Reset flow - summarize'
+      from:
+        - archived
+        - published
+        - summarized
+      to: summarize
+      weight: 6
     summarize:
       label: Summarize
       from:

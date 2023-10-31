@@ -100,6 +100,25 @@ type_settings:
         - action_points_created
       to: published
       weight: 1
+    reset_flow_action_points:
+      label: 'Reset flow - action points'
+      from:
+        - action_points_created
+        - archived
+        - published
+      to: action_points
+      weight: 6
+    reset_flow_extract:
+      label: 'Reset flow - extract'
+      from:
+        - action_points
+        - action_points_created
+        - archived
+        - extract_text
+        - published
+        - text_extracted
+      to: extract_text
+      weight: 5
     text_extracted:
       label: 'Text extracted'
       from:
