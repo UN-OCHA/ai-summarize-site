@@ -6,3 +6,11 @@ ocha_ai_summarize.compare.summary:
   requirements:
     _permission: 'ocha_ai_summarize compare summary'
     id: ^\d+$
+ocha_ai_summarize.compare.action_points:
+  path: '/node/{id}/compare'
+  defaults:
+    _title: 'Action points comparison'
+    _controller: '\Drupal\ocha_ai_summarize\Controller\CompareSummaryController::compare'
+  requirements:
+    _permission: 'ocha_ai_summarize compare summary'
+    id: ^\d+$

@@ -526,6 +526,17 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
     '#items' => array_values($states),
     '#weight' => -100,
   ];
+
+  if ($entity->hasField('field_auto_create') && $entity->get('field_auto_create')->value && $active == 'action_points_created') {
+    $build['compare'] = [
+      '#type' => 'link',
+      '#title' => t('Compare action points'),
+      '#url' => Url::fromRoute('ocha_ai_summarize.compare.action_points', [
+        'id' => $entity->id(),
+      ]),
+      '#weight' => 100,
+    ];
+  }
 }
 
 /**

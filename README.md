@@ -25,9 +25,9 @@ $config['ocha_ai_summarize.settings']['claude_api_key'] = 'zz';
 ## Cron
 
 ```bash
-drush queue:process ocha_ai_summarize_extract_text
-drush queue:process ocha_ai_summarize_summarize
-drush queue:process ocha_ai_summarize_action_points
+drush queue:process ocha_ai_summarize_extract_text --verbose
+drush queue:process ocha_ai_summarize_summarize --verbose
+drush queue:process ocha_ai_summarize_action_points --verbose
 ```
 
 We can either use cron to run the queues or run them separatly
