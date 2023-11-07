@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.summary.field_ai_brain
+    - field.field.node.summary.field_auto_create
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_document
     - field.field.node.summary.field_document_text
@@ -69,6 +70,7 @@ content:
     weight: 6
     region: content
 hidden:
+  field_auto_create: true
   field_document_text: true
   langcode: true
   private: true

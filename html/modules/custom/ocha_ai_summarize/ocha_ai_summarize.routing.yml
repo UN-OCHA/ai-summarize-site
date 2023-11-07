@@ -1,0 +1,8 @@
+ocha_ai_summarize.compare.summary:
+  path: '/node/{id}/compare'
+  defaults:
+    _title: 'Summaries comparison'
+    _controller: '\Drupal\ocha_ai_summarize\Controller\CompareSummaryController::compare'
+  requirements:
+    _permission: 'ocha_ai_summarize compare summary'
+    id: ^\d+$

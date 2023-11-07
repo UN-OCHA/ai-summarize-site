@@ -11,6 +11,7 @@ dependencies:
     - content_moderation
     - node
     - node_view_permissions
+    - ocha_ai_summarize
     - system
 id: document_analyzer
 label: 'Document Analyzer'
@@ -24,6 +25,7 @@ permissions:
   - 'delete own summary content'
   - 'edit own action_points content'
   - 'edit own summary content'
+  - 'ocha_ai_summarize compare summary'
   - 'use action_points transition action_points'
   - 'use action_points transition action_points_created_update'
   - 'use action_points transition document_uploaded'

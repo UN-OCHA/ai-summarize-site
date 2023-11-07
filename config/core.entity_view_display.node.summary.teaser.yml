@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.summary.field_ai_brain
+    - field.field.node.summary.field_auto_create
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_document
     - field.field.node.summary.field_document_text
@@ -12,6 +13,7 @@ dependencies:
     - field.field.node.summary.field_summary
     - node.type.summary
   module:
+    - private_content
     - user
 id: node.summary.teaser
 targetEntityType: node
@@ -28,8 +30,16 @@ content:
     third_party_settings: {  }
     weight: 100
     region: content
+  private:
+    type: private
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
 hidden:
   field_ai_brain: true
+  field_auto_create: true
   field_automatic_mode: true
   field_document: true
   field_document_text: true

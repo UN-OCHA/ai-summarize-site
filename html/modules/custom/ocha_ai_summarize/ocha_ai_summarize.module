@@ -17,6 +17,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -29,12 +30,35 @@ use Symfony\Component\Process\Process;
  */
 function ocha_ai_summarize_node_insert(EntityInterface $entity) {
   ocha_ai_summarize_node_update($entity);
+
+  // Auto create other nodes?
+  /** @var \Drupal\node\Entity\Node $entity */
+  if (!$entity->hasField('field_auto_create')) {
+    return;
+  }
+
+  if ($entity->get('field_auto_create')->value) {
+    $current_ai = $entity->get('field_ai_brain')->value;
+    $ais = $entity->get('field_ai_brain')->getSettings()['allowed_values'];
+    foreach ($ais as $ai => $bot) {
+      if ($ai == $current_ai) {
+        continue;
+      }
+
+      $new = $entity->createDuplicate();
+      $new->set('field_ai_brain', $ai);
+      $new->set('title', $new->get('title')->value . ' [' . $bot . ']');
+      $new->set('field_auto_create', FALSE);
+      $new->save();
+    }
+  }
 }
 
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   switch ($entity->bundle()) {
     case 'summary':
       ocha_ai_summarize_node_update_summary($entity);
@@ -51,6 +75,7 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'summary') {
     return;
   }
@@ -113,6 +138,7 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'action_points') {
     return;
   }
@@ -196,10 +222,15 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
     return;
   }
 
+  /** @var \Drupal\node\Entity\Node $node */
   $node = $form_state->getFormObject()->getEntity();
   $current_state = $node->moderation_state->value;
   if (!$current_state) {
     return;
+  }
+
+  if (isset($form['field_auto_create'])) {
+    $form['field_auto_create']['#disabled'] = TRUE;
   }
 
   switch ($current_state) {
@@ -263,6 +294,7 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
     return;
   }
 
+  /** @var \Drupal\node\Entity\Node $node */
   $node = $form_state->getFormObject()->getEntity();
   $current_state = $node->moderation_state->value;
   if (!$current_state) {
@@ -306,6 +338,7 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
   switch ($entity->bundle()) {
     case 'summary':
       ocha_ai_summarize_node_view_summary($build, $entity, $display, $view_mode);
@@ -322,6 +355,7 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'summary') {
     return;
   }
@@ -398,12 +432,24 @@ function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $ent
     '#items' => array_values($states),
     '#weight' => -100,
   ];
+
+  if ($entity->hasField('field_auto_create') && $entity->get('field_auto_create')->value && $active == 'summarized') {
+    $build['compare'] = [
+      '#type' => 'link',
+      '#title' => t('Compare summaries'),
+      '#url' => Url::fromRoute('ocha_ai_summarize.compare.summary', [
+        'id' => $entity->id(),
+      ]),
+      '#weight' => 100,
+    ];
+  }
 }
 
 /**
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'action_points') {
     return;
   }
