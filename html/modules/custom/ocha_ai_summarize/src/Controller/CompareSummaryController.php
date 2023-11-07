@@ -12,7 +12,14 @@ class CompareSummaryController extends ControllerBase {
   /**
    * Output comparison.
    */
-  public function compare($id = NULL) {
+  public function compareSummaries($id = NULL) {
+    return $this->compareActionPoints($id);
+  }
+
+  /**
+   * Output comparison.
+   */
+  public function compareActionPoints($id = NULL) {
     /** @var \Drupal\node\Entity\Node $node */
     $node = $this->entityTypeManager()
       ->getStorage('node')

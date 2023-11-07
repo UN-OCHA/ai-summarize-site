@@ -1,16 +1,16 @@
 ocha_ai_summarize.compare.summary:
-  path: '/node/{id}/compare'
+  path: '/node/{id}/compare-summaries'
   defaults:
     _title: 'Summaries comparison'
-    _controller: '\Drupal\ocha_ai_summarize\Controller\CompareSummaryController::compare'
+    _controller: '\Drupal\ocha_ai_summarize\Controller\CompareSummaryController::compareSummaries'
   requirements:
     _permission: 'ocha_ai_summarize compare summary'
     id: ^\d+$
 ocha_ai_summarize.compare.action_points:
-  path: '/node/{id}/compare'
+  path: '/node/{id}/compare-action-points'
   defaults:
     _title: 'Action points comparison'
-    _controller: '\Drupal\ocha_ai_summarize\Controller\CompareSummaryController::compare'
+    _controller: '\Drupal\ocha_ai_summarize\Controller\CompareSummaryController::compareActionPoints'
   requirements:
     _permission: 'ocha_ai_summarize compare summary'
     id: ^\d+$
