@@ -3,14 +3,17 @@ langcode: en
 status: true
 dependencies:
   config:
+    - core.entity_view_display.comment.ai_feedback.default
     - field.field.node.action_points.field_action_points
     - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_ai_feedback
     - field.field.node.action_points.field_auto_create
     - field.field.node.action_points.field_automatic_mode
     - field.field.node.action_points.field_document
     - field.field.node.action_points.field_document_text
     - node.type.action_points
   module:
+    - comment
     - file
     - options
     - text
@@ -39,6 +42,15 @@ content:
     third_party_settings: {  }
     weight: 1
     region: content
+  field_ai_feedback:
+    type: comment_default
+    label: above
+    settings:
+      view_mode: default
+      pager_id: 0
+    third_party_settings: {  }
+    weight: 5
+    region: content
   field_automatic_mode:
     type: boolean
     label: inline
@@ -57,13 +69,9 @@ content:
     third_party_settings: {  }
     weight: 2
     region: content
-  links:
-    settings: {  }
-    third_party_settings: {  }
-    weight: 5
-    region: content
 hidden:
   field_auto_create: true
   field_document_text: true
   langcode: true
+  links: true
   private: true

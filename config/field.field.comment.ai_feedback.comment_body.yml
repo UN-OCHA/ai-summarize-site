@@ -1,0 +1,22 @@
+uuid: f2bf0aa1-874b-4273-adc8-e9301c4741ab
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.ai_feedback
+    - field.storage.comment.comment_body
+  module:
+    - text
+id: comment.ai_feedback.comment_body
+field_name: comment_body
+entity_type: comment
+bundle: ai_feedback
+label: Comment
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.action_points.field_action_points
     - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_ai_feedback
     - field.field.node.action_points.field_auto_create
     - field.field.node.action_points.field_automatic_mode
     - field.field.node.action_points.field_document
@@ -12,6 +13,7 @@ dependencies:
     - node.type.action_points
     - workflows.workflow.action_points
   module:
+    - comment
     - content_moderation
     - file
     - path
@@ -39,6 +41,12 @@ content:
   field_ai_brain:
     type: options_select
     weight: 3
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_ai_feedback:
+    type: comment_default
+    weight: 26
     region: content
     settings: {  }
     third_party_settings: {  }

@@ -1,0 +1,39 @@
+uuid: abd433ed-8e52-4233-80ec-5a345c277339
+langcode: en
+status: true
+dependencies:
+  module:
+    - comment
+    - options
+id: comment.field_rating
+field_name: field_rating
+entity_type: comment
+type: list_integer
+settings:
+  allowed_values:
+    -
+      value: 0
+      label: 'Not relevant'
+    -
+      value: 1
+      label: Bad
+    -
+      value: 2
+      label: Poor
+    -
+      value: 3
+      label: Neutral
+    -
+      value: 4
+      label: Good
+    -
+      value: 5
+      label: Amazing
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

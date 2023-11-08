@@ -443,6 +443,10 @@ function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $ent
       '#weight' => 100,
     ];
   }
+
+  if ($entity->hasField('field_ai_feedback') && $active != 'summarized') {
+    unset($build['field_ai_feedback']);
+  }
 }
 
 /**
@@ -536,6 +540,10 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
       ]),
       '#weight' => 100,
     ];
+  }
+
+  if ($entity->hasField('field_ai_feedback') && $active != 'action_points_created') {
+    unset($build['field_ai_feedback']);
   }
 }
 

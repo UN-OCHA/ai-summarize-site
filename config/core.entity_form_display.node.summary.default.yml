@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.summary.field_ai_brain
+    - field.field.node.summary.field_ai_feedback
     - field.field.node.summary.field_auto_create
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_document
@@ -13,6 +14,7 @@ dependencies:
     - node.type.summary
     - workflows.workflow.summarize
   module:
+    - comment
     - content_moderation
     - file
     - path
@@ -31,6 +33,12 @@ content:
   field_ai_brain:
     type: options_select
     weight: 3
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_ai_feedback:
+    type: comment_default
+    weight: 26
     region: content
     settings: {  }
     third_party_settings: {  }

@@ -8,6 +8,7 @@ dependencies:
     - workflows.workflow.action_points
     - workflows.workflow.summarize
   module:
+    - comment
     - content_moderation
     - node
     - node_view_permissions
@@ -26,6 +27,7 @@ permissions:
   - 'edit own action_points content'
   - 'edit own summary content'
   - 'ocha_ai_summarize compare summary'
+  - 'post comments'
   - 'use action_points transition action_points'
   - 'use action_points transition action_points_created_update'
   - 'use action_points transition document_uploaded'

@@ -6,7 +6,6 @@ dependencies:
     - filter.format.text_editor_simple
     - node.type.page
   module:
-    - admin_feedback
     - content_translation
     - file
     - filter
@@ -50,8 +49,6 @@ permissions:
   - 'update content translations'
   - 'update media'
   - 'use text format text_editor_simple'
-  - 'view admin feedback dashboard'
-  - 'view admin feedback detail view'
   - 'view all media revisions'
   - 'view all revisions'
   - 'view own unpublished content'

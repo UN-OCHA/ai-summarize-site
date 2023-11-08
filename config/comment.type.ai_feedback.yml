@@ -1,0 +1,8 @@
+uuid: c3aec219-4b3c-4e26-9153-0a530e881e14
+langcode: en
+status: true
+dependencies: {  }
+id: ai_feedback
+label: 'AI Feedback'
+target_entity_type_id: node
+description: ''

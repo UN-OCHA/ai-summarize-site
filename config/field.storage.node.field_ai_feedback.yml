@@ -1,0 +1,20 @@
+uuid: c942120a-661c-4329-b1da-fe4b760cefeb
+langcode: en
+status: true
+dependencies:
+  module:
+    - comment
+    - node
+id: node.field_ai_feedback
+field_name: field_ai_feedback
+entity_type: node
+type: comment
+settings:
+  comment_type: ai_feedback
+module: comment
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
