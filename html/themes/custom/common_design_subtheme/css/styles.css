@@ -50,3 +50,8 @@ ol.workflow-steps > li.to-do {
   background-color: #ff004a;
   color: #fff;
 }
+
+.node--unpublished {
+  background: #eee !important;
+  padding: 1rem;
+}
