@@ -215,6 +215,7 @@ function ocha_ai_summarize_form_node_summary_edit_form_alter(&$form, FormStateIn
  */
 function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_summary_form') {
+    $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_summary']['#access'] = FALSE;
     $form['moderation_state']['#access'] = FALSE;
@@ -287,6 +288,7 @@ function ocha_ai_summarize_form_node_action_points_edit_form_alter(&$form, FormS
  */
 function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_action_points_form') {
+    $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_action_points']['#access'] = FALSE;
     $form['moderation_state']['#access'] = FALSE;
