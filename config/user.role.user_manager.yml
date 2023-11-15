@@ -8,11 +8,13 @@ dependencies:
     - content_moderation
     - node
     - node_view_permissions
+    - toolbar
 id: user_manager
 label: 'User manager'
 weight: -7
 is_admin: null
 permissions:
+  - 'access toolbar'
   - 'access user profiles'
   - 'administer users'
   - 'edit any summary content'
