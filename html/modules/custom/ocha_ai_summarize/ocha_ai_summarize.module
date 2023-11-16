@@ -435,7 +435,7 @@ function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $ent
     '#weight' => -100,
   ];
 
-  if ($entity->hasField('field_auto_create') && $entity->get('field_auto_create')->value && $active == 'summarized') {
+  if ($active == 'summarized' && ocha_ai_summarize_file_is_shared($entity)) {
     $build['compare'] = [
       '#type' => 'link',
       '#title' => t('Compare summaries'),
@@ -533,7 +533,7 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
     '#weight' => -100,
   ];
 
-  if ($entity->hasField('field_auto_create') && $entity->get('field_auto_create')->value && $active == 'action_points_created') {
+  if ($active == 'action_points_created' && ocha_ai_summarize_file_is_shared($entity)) {
     $build['compare'] = [
       '#type' => 'link',
       '#title' => t('Compare action points'),
@@ -547,6 +547,21 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
   if ($entity->hasField('field_ai_feedback') && $active != 'action_points_created') {
     unset($build['field_ai_feedback']);
   }
+}
+
+/**
+ * Check if source file is used by multiple nodes.
+ */
+function ocha_ai_summarize_file_is_shared($node) {
+  /** @var \Drupal\node\Entity\Node $nodes[] */
+  $nodes = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->loadByProperties([
+      'type' => $node->bundle(),
+      'field_document.target_id' => $node->get('field_document')->target_id,
+    ]);
+
+  return count($nodes) > 1;
 }
 
 /**
