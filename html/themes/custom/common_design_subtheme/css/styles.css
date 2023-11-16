@@ -55,3 +55,7 @@ ol.workflow-steps > li.to-do {
   background: #eee !important;
   padding: 1rem;
 }
+
+.node--compare-link {
+  margin-top: 1rem;
+}

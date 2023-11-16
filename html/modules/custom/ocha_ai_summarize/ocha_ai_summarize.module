@@ -442,6 +442,13 @@ function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $ent
       '#url' => Url::fromRoute('ocha_ai_summarize.compare.summary', [
         'id' => $entity->id(),
       ]),
+      '#prefix' => '<div class="node--compare-link">',
+      '#suffix' => '</div>',
+      '#attributes' => [
+        'class' => [
+          'cd-button',
+        ],
+      ],
       '#weight' => 100,
     ];
   }
@@ -540,6 +547,13 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
       '#url' => Url::fromRoute('ocha_ai_summarize.compare.action_points', [
         'id' => $entity->id(),
       ]),
+      '#prefix' => '<div class="node--compare-link">',
+      '#suffix' => '</div>',
+      '#attributes' => [
+        'class' => [
+          'cd-button',
+        ],
+      ],
       '#weight' => 100,
     ];
   }
