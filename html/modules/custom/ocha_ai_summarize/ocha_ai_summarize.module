@@ -1054,7 +1054,7 @@ function ocha_ai_summarize_http_call_claude($prompt) {
   ];
 
   $body = [
-    'model' => 'claude-2',
+    'model' => 'claude-instant-v1',
     'prompt' => $prompt,
     "stop_sequences" => [
       "\\n\\nHuman:",
