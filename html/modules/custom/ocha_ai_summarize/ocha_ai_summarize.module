@@ -215,6 +215,11 @@ function ocha_ai_summarize_form_node_summary_edit_form_alter(&$form, FormStateIn
  */
 function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_summary_form') {
+    // Remove OpenAi.
+    if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
+      unset($form['field_ai_brain']['widget']['#options']['openai']);
+    }
+
     $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_summary']['#access'] = FALSE;
@@ -288,6 +293,11 @@ function ocha_ai_summarize_form_node_action_points_edit_form_alter(&$form, FormS
  */
 function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_action_points_form') {
+    // Remove OpenAi.
+    if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
+      unset($form['field_ai_brain']['widget']['#options']['openai']);
+    }
+
     $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_action_points']['#access'] = FALSE;
