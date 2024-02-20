@@ -53,6 +53,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
     $num_paragraphs = $data->num_paragraphs;
+    $document_language = $data->language ?? 'eng';
 
     if (empty($nid)) {
       return;
@@ -79,6 +80,11 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
+    $prompt = "Summerize the following text in $num_paragraphs paragraphs:\n\n";
+    if ($document_language != 'eng') {
+      $prompt = "Résumez le texte suivant en $num_paragraphs paragraphes:\n\n";
+    }
+
     // Claude can handle all text at once.
     if ($bot == 'claude') {
       $text = '';
@@ -87,7 +93,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       }
 
       $text = ocha_ai_summarize_check_length($text, $bot);
-      $summary = $this->sendToClaudeAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+      $summary = $this->sendToClaudeAi($prompt . $text);
     }
     else {
       // Summarize each page.
@@ -104,15 +110,15 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
 
         switch ($bot) {
           case 'openai':
-            $results[] = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToOpenAi($prompt . $text);
             break;
 
           case 'azure_trained':
-            $results[] = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToAzureAi($prompt . $text);
             break;
 
           case 'bedrock':
-            $results[] = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToBedRock($prompt . $text);
             break;
 
         }
@@ -129,15 +135,15 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
 
       switch ($bot) {
         case 'openai':
-          $summary = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToOpenAi($prompt . $text);
           break;
 
         case 'azure_trained':
-          $summary = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToAzureAi($prompt . $text);
           break;
 
         case 'bedrock':
-          $summary = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToBedRock($prompt . $text);
           break;
       }
     }

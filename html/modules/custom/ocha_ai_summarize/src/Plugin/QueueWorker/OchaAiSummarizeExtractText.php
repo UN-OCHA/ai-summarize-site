@@ -61,6 +61,7 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
    */
   public function processItem($data) {
     $nid = $data->nid;
+    $document_language = $data->language ?? 'eng';
 
     if (empty($nid)) {
       return;
@@ -102,10 +103,10 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
     $absolute_path = $this->fileSystem->realpath($file->getFileUri());
     $file_parts = pathinfo($absolute_path);
     if (strtolower($file_parts['extension']) == 'pdf') {
-      $text = ocha_ai_summarize_extract_pages_from_pdf_ocr($absolute_path);
+      $text = ocha_ai_summarize_extract_pages_from_pdf_ocr($absolute_path, $document_language);
     }
     else {
-      $text = ocha_ai_summarize_extract_pages_from_doc($absolute_path);
+      $text = ocha_ai_summarize_extract_pages_from_doc($absolute_path, $document_language);
     }
 
     $node->set('field_document_text', $text);
