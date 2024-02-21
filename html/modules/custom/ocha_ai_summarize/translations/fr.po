@@ -1,0 +1,19 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Custom\\n"
+"MIME-Version: 1.0\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Content-Transfer-Encoding: 8bit\\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\\n"
+
+msgid "Summarize the following text in @num_paragraphs paragraphs"
+msgstr "Résumez le texte suivant en @num_paragraphs paragraphes"
+
+msgid "You are an AI assistant that summarizes information."
+msgstr "Vous êtes un assistant IA qui résume les informations."
+
+msgid "Extract the action points from the following meeting minutes."
+msgstr "Extrayez les points d’action du procès-verbal de la réunion suivante."
+
+msgid "You are an AI assistant that extracts action points out of meeting minutes."
+msgstr "Vous êtes un assistant IA qui extrait les points d'action des procès-verbaux des réunions."

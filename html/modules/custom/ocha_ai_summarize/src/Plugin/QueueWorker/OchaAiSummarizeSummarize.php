@@ -6,6 +6,7 @@ use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The entity type manager.
@@ -80,10 +83,12 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
-    $prompt = "Summerize the following text in $num_paragraphs paragraphs:\n\n";
-    if ($document_language != 'eng') {
-      $prompt = "Résumez le texte suivant en $num_paragraphs paragraphes:\n\n";
-    }
+    $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs', [
+      '@num_paragraphs' => $num_paragraphs,
+    ], [
+      'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+    ])->__toString();
+    $prompt .= ":\n\n";
 
     // Claude can handle all text at once.
     if ($bot == 'claude') {
@@ -180,15 +185,13 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
   protected function sendToAzureAi($text) : string {
     $result = ocha_ai_summarize_http_call_azure(
       [
-        'messages' => [
-          [
-            'role' => 'system',
-            'content' => 'You are an AI assistant that summarizes information.',
-          ],
-          [
-            'role' => 'user',
-            'content' => $text,
-          ],
+        [
+          'role' => 'system',
+          'content' => $this->t('You are an AI assistant that summarizes information.'),
+        ],
+        [
+          'role' => 'user',
+          'content' => $text,
         ],
       ],
     );

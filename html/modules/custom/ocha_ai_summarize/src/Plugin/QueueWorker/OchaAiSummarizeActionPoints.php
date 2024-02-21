@@ -6,6 +6,7 @@ use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The entity type manager.
@@ -52,6 +55,7 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
   public function processItem($data) {
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
+    $document_language = $data->language ?? 'eng';
 
     if (empty($nid)) {
       return;
@@ -78,7 +82,10 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
       return;
     }
 
-    $prompt = "Extract the action points from the following meeting minutes";
+    $prompt = $this->t("Extract the action points from the following meeting minutes.", [], [
+      'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+    ])->__toString();
+    $prompt .= ":\n\n";
 
     // Claude can handle all text at once.
     if ($bot == 'claude') {
@@ -103,18 +110,24 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
         }
 
         $text = ocha_ai_summarize_check_length($text, $bot);
+        $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs', [
+          '@num_paragraphs' => 3,
+        ], [
+          'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+        ])->__toString();
+        $prompt .= ":\n\n";
 
         switch ($bot) {
           case 'openai':
-            $results[] = $this->sendToOpenAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+            $results[] = $this->sendToOpenAi($prompt . $text);
             break;
 
           case 'azure_trained':
-            $results[] = $this->sendToAzureAi("Summerize the following text in 3 paragraphs:\n\n" . $text);
+            $results[] = $this->sendToAzureAi($prompt . $text);
             break;
 
           case 'bedrock':
-            $results[] = $this->sendToBedRock("Summerize the following text in 3 paragraphs:\n\n" . $text);
+            $results[] = $this->sendToBedRock($prompt . $text);
             break;
 
         }
@@ -182,7 +195,7 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
         'messages' => [
           [
             'role' => 'system',
-            'content' => 'You are an AI assistant that extracts action points out of meeting minutes.',
+            'content' => $this->t('You are an AI assistant that extracts action points out of meeting minutes.'),
           ],
           [
             'role' => 'user',
@@ -192,7 +205,7 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
       ],
     );
 
-    return $result['choices'][0]['message']['content'] ?? '';
+    return $result ?? '';
   }
 
   /**

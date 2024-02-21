@@ -1204,3 +1204,41 @@ function ocha_ai_summarize_check_length($text, $bot) {
 
   return $text;
 }
+
+/**
+ * Implements hook_locale_translation_projects_alter().
+ */
+function ocha_ai_summarize_locale_translation_projects_alter(&$projects) {
+  $path = \Drupal::moduleHandler()->getModule('ocha_ai_summarize')->getPath();
+
+  $projects['ocha_ai_summarize'] = [
+    'name' => 'ocha_ai_summarize',
+    'info' => [
+      'name' => 'OCHA AI Summarize',
+      'package' => 'Other',
+      'version' => 'custom',
+      'project' => 'ocha_ai_summarize',
+      'datestamp' => '0',
+      'interface translation server pattern' => $path . '/translations/%language.po',
+    ],
+    'datestamp' => '0',
+    'project_type' => 'module',
+    'project_status' => TRUE,
+  ];
+}
+
+/**
+ * Map lang codes from tesseract to Drupal.
+ */
+function ocha_ai_summarize_get_lang_code($code) {
+  $lang_codes = [
+    'arabic' => 'ar',
+    'chi_sim' => 'zh-hans',
+    'eng' => 'en',
+    'fra' => 'fr',
+    'spa' => 'es',
+    'rus' => 'ru',
+  ];
+
+  return $lang_codes[$code] ?? 'en';
+}

@@ -1,0 +1,20 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Custom\\n"
+"MIME-Version: 1.0\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Content-Transfer-Encoding: 8bit\\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\\n"
+
+msgid "Summarize the following text in @num_paragraphs paragraphs"
+msgstr "将下列文字概括为 @num_paragraphs 段"
+
+msgid "You are an AI assistant that summarizes information."
+msgstr "你是一个汇总信息的AI助手。"
+
+msgid "Extract the action points from the following meeting minutes."
+msgstr "从以下会议纪要中提取行动要点。"
+
+msgid "You are an AI assistant that extracts action points out of meeting minutes."
+msgstr "您是一名人工智能助理，可以从会议纪要中提取行动要点。"
+
