@@ -1,0 +1,21 @@
+uuid: af84c662-b56b-4c35-a7d3-f6f79e72437a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_document_language
+    - node.type.action_points
+  module:
+    - options
+id: node.action_points.field_document_language
+field_name: field_document_language
+entity_type: node
+bundle: action_points
+label: 'Document language'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

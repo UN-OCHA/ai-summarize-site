@@ -7,6 +7,16 @@ url:
   prefixes:
     en: ''
     '': null
+    fr: fr
+    zh-hans: zh-hans
+    es: es
+    ar: ar
+    ru: ru
   domains:
     en: ''
+    fr: ''
+    zh-hans: ''
+    es: ''
+    ar: ''
+    ru: ''
 selected_langcode: site_default

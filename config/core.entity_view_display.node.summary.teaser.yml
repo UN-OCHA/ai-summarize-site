@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.summary.field_auto_create
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_document
+    - field.field.node.summary.field_document_language
     - field.field.node.summary.field_document_text
     - field.field.node.summary.field_number_of_paragraphs
     - field.field.node.summary.field_summary
@@ -44,6 +45,7 @@ hidden:
   field_auto_create: true
   field_automatic_mode: true
   field_document: true
+  field_document_language: true
   field_document_text: true
   field_number_of_paragraphs: true
   field_summary: true

@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.summary.field_auto_create
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_document
+    - field.field.node.summary.field_document_language
     - field.field.node.summary.field_document_text
     - field.field.node.summary.field_number_of_paragraphs
     - field.field.node.summary.field_summary
@@ -26,7 +27,7 @@ mode: default
 content:
   created:
     type: datetime_timestamp
-    weight: 14
+    weight: 15
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -38,7 +39,7 @@ content:
     third_party_settings: {  }
   field_ai_feedback:
     type: comment_default
-    weight: 26
+    weight: 17
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -58,14 +59,20 @@ content:
     third_party_settings: {  }
   field_document:
     type: file_generic
-    weight: 7
+    weight: 8
     region: content
     settings:
       progress_indicator: throbber
     third_party_settings: {  }
+  field_document_language:
+    type: options_select
+    weight: 7
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   field_document_text:
     type: string_textarea
-    weight: 8
+    weight: 9
     region: content
     settings:
       rows: 5
@@ -79,7 +86,7 @@ content:
     third_party_settings: {  }
   field_summary:
     type: string_textarea
-    weight: 9
+    weight: 10
     region: content
     settings:
       rows: 5
@@ -94,13 +101,13 @@ content:
     third_party_settings: {  }
   moderation_state:
     type: moderation_state_default
-    weight: 10
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 11
+    weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -112,7 +119,7 @@ content:
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 13
+    weight: 14
     region: content
     settings:
       display_label: true
@@ -127,7 +134,7 @@ content:
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 15
+    weight: 16
     region: content
     settings:
       match_operator: CONTAINS
@@ -136,7 +143,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
   url_redirects:
-    weight: 12
+    weight: 13
     region: content
     settings: {  }
     third_party_settings: {  }

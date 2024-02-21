@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.action_points.field_auto_create
     - field.field.node.action_points.field_automatic_mode
     - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_language
     - field.field.node.action_points.field_document_text
     - node.type.action_points
   module:
@@ -66,6 +67,13 @@ content:
     label: inline
     settings:
       use_description_as_link_text: true
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_document_language:
+    type: list_default
+    label: inline
+    settings: {  }
     third_party_settings: {  }
     weight: 2
     region: content

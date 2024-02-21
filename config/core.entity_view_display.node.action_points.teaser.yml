@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.action_points.field_auto_create
     - field.field.node.action_points.field_automatic_mode
     - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_language
     - field.field.node.action_points.field_document_text
     - node.type.action_points
   module:
@@ -44,5 +45,6 @@ hidden:
   field_auto_create: true
   field_automatic_mode: true
   field_document: true
+  field_document_language: true
   field_document_text: true
   langcode: true

@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.summary.field_auto_create
     - field.field.node.summary.field_automatic_mode
     - field.field.node.summary.field_document
+    - field.field.node.summary.field_document_language
     - field.field.node.summary.field_document_text
     - field.field.node.summary.field_number_of_paragraphs
     - field.field.node.summary.field_summary
@@ -26,7 +27,7 @@ content:
   content_moderation_control:
     settings: {  }
     third_party_settings: {  }
-    weight: 5
+    weight: 6
     region: content
   field_ai_brain:
     type: list_default
@@ -42,7 +43,7 @@ content:
       view_mode: default
       pager_id: 0
     third_party_settings: {  }
-    weight: 6
+    weight: 7
     region: content
   field_automatic_mode:
     type: boolean
@@ -60,6 +61,13 @@ content:
     settings:
       use_description_as_link_text: true
     third_party_settings: {  }
+    weight: 3
+    region: content
+  field_document_language:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
     weight: 2
     region: content
   field_number_of_paragraphs:
@@ -67,14 +75,14 @@ content:
     label: inline
     settings: {  }
     third_party_settings: {  }
-    weight: 3
+    weight: 4
     region: content
   field_summary:
     type: basic_string
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 4
+    weight: 5
     region: content
 hidden:
   field_auto_create: true
