@@ -1232,7 +1232,7 @@ function ocha_ai_summarize_locale_translation_projects_alter(&$projects) {
  */
 function ocha_ai_summarize_get_lang_code($code) {
   $lang_codes = [
-    'arabic' => 'ar',
+    'Arabic' => 'ar',
     'chi_sim' => 'zh-hans',
     'eng' => 'en',
     'fra' => 'fr',

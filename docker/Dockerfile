@@ -46,7 +46,7 @@ LABEL info.humanitarianresponse.build.date=$BUILD_DATE \
       info.humanitarianresponse.build.vcs-ref=$VCS_REF
 
 # Add PDF and OCR utilities.
-RUN apk add -U --no-cache poppler-utils tesseract-ocr tesseract-ocr-data-eng tesseract-ocr-data-chi_tra tesseract-ocr-data-fra tesseract-ocr-data-rus tesseract-ocr-data-spa tesseract-ocr-data-ara
+RUN apk add -U --no-cache poppler-utils tesseract-ocr tesseract-ocr-data-eng tesseract-ocr-data-chi_sim tesseract-ocr-data-fra tesseract-ocr-data-rus tesseract-ocr-data-spa tesseract-ocr-data-ara
 
 COPY --from=builder /srv/www/assets /srv/www/assets/
 COPY --from=builder /srv/www/config /srv/www/config/
