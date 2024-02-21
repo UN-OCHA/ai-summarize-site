@@ -193,7 +193,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       ],
     );
 
-    return $result['choices'][0]['message']['content'] ?? '';
+    return $result ?? '';
   }
 
   /**

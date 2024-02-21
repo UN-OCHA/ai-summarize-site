@@ -18,8 +18,13 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use OpenAI\Client;
 use PhpOffice\PhpWord\IOFactory;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -970,31 +975,21 @@ function ocha_ai_summarize_http_call_openai($query) {
 /**
  * Make chat call to Azure.
  */
-function ocha_ai_summarize_http_call_azure($query) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $endpoint = $config->get('azure_endpoint');
-  $key = $config->get('azure_apikey');
-
-  $http_client = \Drupal::httpClient();
-
-  $headers = [
-    'Content-Type' => 'application/json',
-    'API-KEY' => $key,
-  ];
+function ocha_ai_summarize_http_call_azure($messages) {
+  $client = ocha_ai_summarize_get_client();
 
   try {
-    $response = $http_client->request(
-      'POST',
-      $endpoint,
-      [
-        'timeout' => 600,
-        'headers' => $headers,
-        'json' => $query,
-      ],
-    );
+    $payload = [
+      'messages' => $messages,
+      'temperature' => 0.0,
+      'top_p' => 0.9,
+      'max_tokens' => 4000,
+    ];
 
-    $body = $response->getBody() . '';
-    return json_decode($body, TRUE);
+    $response = $client->chat()->create($payload);
+
+    $data = $response->toArray();
+    return trim($data['choices'][0]['message']['content'] ?? '');
   }
   catch (ClientException $e) {
     \Drupal::logger('AI - Azure')->error($e->getMessage());
@@ -1004,6 +999,51 @@ function ocha_ai_summarize_http_call_azure($query) {
   }
 
   return '';
+}
+
+/**
+ * Get the Azure OpenAI API client.
+ *
+ * @return \OpenAI\Client
+ *   API Client.
+ */
+function ocha_ai_summarize_get_client(): Client {
+  static $client = NULL;
+
+  if (!$client) {
+    $config = \Drupal::config('ocha_ai_summarize.settings');
+    $endpoint = $config->get('azure_endpoint');
+    $api_key = $config->get('azure_apikey');
+
+    $version = '2024-02-15-preview';
+    $model = 'gpt-35-turbo-16k';
+
+    // Workaround for https://github.com/openai-php/client/issues/218.
+    $stack = HandlerStack::create();
+    $stack->push(
+      Middleware::mapResponse(function (ResponseInterface $response) use ($model) {
+        if (!$response->hasHeader('openai-model')) {
+          $response = $response->withHeader('openai-model', $model);
+        }
+        if (!$response->hasHeader('openai-processing-ms')) {
+          $response = $response->withHeader('openai-processing-ms', '1');
+        }
+        if (!$response->hasHeader('x-request-id')) {
+          $response = $response->withHeader('x-request-id', 'abc');
+        }
+        return $response;
+      })
+    );
+    $guzzle = new GuzzleClient(['handler' => $stack]);
+
+    $client = \OpenAI::factory()
+      ->withBaseUri($endpoint)
+      ->withHttpHeader('api-key', $api_key)
+      ->withQueryParam('api-version', $version)
+      ->withHttpClient($guzzle)
+      ->make();
+  }
+  return $client;
 }
 
 /**

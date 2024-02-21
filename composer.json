@@ -57,6 +57,7 @@
         "drupal/xmlsitemap": "^1.4",
         "drush/drush": "^12",
         "oomphinc/composer-installers-extender": "^2.0",
+        "openai-php/client": "^0.8.4",
         "orakili/composer-drupal-info-file-patch-helper": "^1",
         "phpoffice/phpword": "^1.1",
         "unocha/common_design": "^9.2",
