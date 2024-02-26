@@ -57,6 +57,7 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     $nid = $data->nid;
     $num_paragraphs = $data->num_paragraphs;
     $document_language = $data->language ?? 'eng';
+    $output_language = $data->output_language ?? 'eng';
 
     if (empty($nid)) {
       return;
@@ -88,6 +89,16 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     ], [
       'langcode' => ocha_ai_summarize_get_lang_code($document_language),
     ])->__toString();
+
+    if ($document_language !== $output_language) {
+      $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs and translate to @output_language', [
+        '@num_paragraphs' => $num_paragraphs,
+        '@output_language' => ocha_ai_summarize_get_lang_name_translated($output_language),
+      ], [
+        'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+      ])->__toString();
+    }
+
     $prompt .= ":\n\n";
 
     // Claude can handle all text at once.

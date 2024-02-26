@@ -9,11 +9,17 @@ msgstr ""
 msgid "Summarize the following text in @num_paragraphs paragraphs"
 msgstr "将下列文字概括为 @num_paragraphs 段"
 
+msgid "Summarize the following text in @num_paragraphs paragraphs and translate to @output_language"
+msgstr "总结@num_paragraphs段落中的以下文本并翻译为@output_language"
+
 msgid "You are an AI assistant that summarizes information."
 msgstr "你是一个汇总信息的AI助手。"
 
 msgid "Extract the action points from the following meeting minutes."
 msgstr "从以下会议纪要中提取行动要点。"
+
+msgid "Extract the action points from the following meeting minutes and translate to @output_language."
+msgstr "从以下会议纪要中提取行动要点并翻译为@output_language。"
 
 msgid "You are an AI assistant that extracts action points out of meeting minutes."
 msgstr "您是一名人工智能助理，可以从会议纪要中提取行动要点。"
