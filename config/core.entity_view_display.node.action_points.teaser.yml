@@ -12,6 +12,7 @@ dependencies:
     - field.field.node.action_points.field_document
     - field.field.node.action_points.field_document_language
     - field.field.node.action_points.field_document_text
+    - field.field.node.action_points.field_output_language
     - node.type.action_points
   module:
     - private_content
@@ -47,4 +48,5 @@ hidden:
   field_document: true
   field_document_language: true
   field_document_text: true
+  field_output_language: true
   langcode: true

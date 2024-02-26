@@ -9,11 +9,17 @@ msgstr ""
 msgid "Summarize the following text in @num_paragraphs paragraphs"
 msgstr "Résumez le texte suivant en @num_paragraphs paragraphes"
 
+msgid "Summarize the following text in @num_paragraphs paragraphs and translate to @output_language"
+msgstr "Résumez le texte suivant dans les paragraphes @num_paragraphs et traduisez-le en @output_language"
+
 msgid "You are an AI assistant that summarizes information."
 msgstr "Vous êtes un assistant IA qui résume les informations."
 
 msgid "Extract the action points from the following meeting minutes."
 msgstr "Extrayez les points d’action du procès-verbal de la réunion suivante."
+
+msgid "Extract the action points from the following meeting minutes and translate to @output_language."
+msgstr "Extrayez les points d’action du procès-verbal de la réunion suivante et traduisez-le en @output_language."
 
 msgid "You are an AI assistant that extracts action points out of meeting minutes."
 msgstr "Vous êtes un assistant IA qui extrait les points d'action des procès-verbaux des réunions."

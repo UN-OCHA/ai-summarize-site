@@ -100,6 +100,7 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
   $current_state = $entity->moderation_state->value;
   $automatic_mode = $entity->field_automatic_mode->value;
   $document_language = $entity->field_document_language->value ?? 'eng';
+  $output_language = $entity->field_output_language->value ?? 'eng';
 
   if (!$current_state) {
     return;
@@ -139,6 +140,7 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
   $item->nid = $entity->id();
   $item->brain = $entity->get('field_ai_brain')->value;
   $item->language = $document_language;
+  $item->output_language = $output_language;
   $item->num_paragraphs = $entity->get('field_number_of_paragraphs')->value ?? 3;
 
   $queue->createItem($item);
@@ -166,6 +168,7 @@ function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
   $current_state = $entity->moderation_state->value;
   $automatic_mode = $entity->field_automatic_mode->value;
   $document_language = $entity->field_document_language->value ?? 'eng';
+  $output_language = $entity->field_output_language->value ?? 'eng';
 
   if (!$current_state) {
     return;
@@ -205,6 +208,7 @@ function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
   $item->nid = $entity->id();
   $item->brain = $entity->get('field_ai_brain')->value;
   $item->language = $document_language;
+  $item->output_language = $output_language;
 
   $queue->createItem($item);
 }
@@ -264,6 +268,7 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
     case 'text_extracted':
       $form['field_summary']['#access'] = FALSE;
       $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       break;
 
     case 'summarize':
@@ -275,12 +280,14 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
       $form['field_summary']['#access'] = FALSE;
       $form['moderation_state']['#access'] = FALSE;
       $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       break;
 
     case 'summarized':
       $form['field_number_of_paragraphs']['#disabled'] = TRUE;
       $form['field_document_text']['#disabled'] = TRUE;
       $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
       unset($form['field_document_text']['widget']['add_more']);
 
@@ -341,11 +348,13 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
     case 'text_extracted':
       $form['field_action_points']['#access'] = FALSE;
       $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       break;
 
     case 'action_points':
       $form['field_document_text']['#disabled'] = TRUE;
       $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
       unset($form['field_document_text']['widget']['add_more']);
 
@@ -356,6 +365,7 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
     case 'action_points_created':
       $form['field_document_text']['#disabled'] = TRUE;
       $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
       unset($form['field_document_text']['widget']['add_more']);
 
@@ -1225,6 +1235,34 @@ function ocha_ai_summarize_locale_translation_projects_alter(&$projects) {
     'project_type' => 'module',
     'project_status' => TRUE,
   ];
+}
+
+/**
+ * Get language name in  a language.
+ */
+function ocha_ai_summarize_get_lang_name_translated($code) {
+  $language = ocha_ai_summarize_get_lang_name($code);
+  $output_language = ocha_ai_summarize_get_lang_code($code);
+
+  if ($output_language == 'en') {
+    return $language;
+  }
+
+  return t('@language', [
+    '@language' => $language,
+  ], [
+    'langcode' => $output_language,
+  ])->__toString();
+}
+
+/**
+ * Get language name.
+ */
+function ocha_ai_summarize_get_lang_name($code) {
+  $code = ocha_ai_summarize_get_lang_code($code);
+  $langcodes = \Drupal::languageManager()->getLanguages();
+
+  return $langcodes[$code]->getName();
 }
 
 /**

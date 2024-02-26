@@ -56,6 +56,7 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
     $document_language = $data->language ?? 'eng';
+    $output_language = $data->output_language ?? 'eng';
 
     if (empty($nid)) {
       return;
@@ -85,7 +86,16 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
     $prompt = $this->t("Extract the action points from the following meeting minutes.", [], [
       'langcode' => ocha_ai_summarize_get_lang_code($document_language),
     ])->__toString();
-    $prompt .= ":\n\n";
+
+    if ($document_language !== $output_language) {
+      $prompt = $this->t('Extract the action points from the following meeting minutes and translate to @output_language.', [
+        '@output_language' => ocha_ai_summarize_get_lang_name_translated($output_language),
+      ], [
+        'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+      ])->__toString();
+    }
+
+    $prompt .= "\n\n";
 
     // Claude can handle all text at once.
     if ($bot == 'claude') {
