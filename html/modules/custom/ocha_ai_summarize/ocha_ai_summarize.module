@@ -5,17 +5,27 @@
  * Use AI to summarize documents.
  */
 
-use Aws\Credentials\Credentials;
+use Aws\BedrockRuntime\BedrockRuntimeClient;
 use Aws\S3\S3Client;
-use Aws\Signature\SignatureV4;
+use Aws\Sts\StsClient;
 use Aws\Textract\TextractClient;
+use Drupal\block\Entity\Block;
 use Drupal\content_moderation\Entity\ContentModerationState;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use OpenAI\Client;
 use PhpOffice\PhpWord\IOFactory;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -23,12 +33,40 @@ use Symfony\Component\Process\Process;
  */
 function ocha_ai_summarize_node_insert(EntityInterface $entity) {
   ocha_ai_summarize_node_update($entity);
+
+  // Auto create other nodes?
+  /** @var \Drupal\node\Entity\Node $entity */
+  if (!$entity->hasField('field_auto_create')) {
+    return;
+  }
+
+  if ($entity->get('field_auto_create')->value) {
+    $current_ai = $entity->get('field_ai_brain')->value;
+    $ais = $entity->get('field_ai_brain')->getSettings()['allowed_values'];
+    foreach ($ais as $ai => $bot) {
+      // Skip openai.
+      if ($ai == 'openai') {
+        continue;
+      }
+
+      if ($ai == $current_ai) {
+        continue;
+      }
+
+      $new = $entity->createDuplicate();
+      $new->set('field_ai_brain', $ai);
+      $new->set('title', $new->get('title')->value . ' [' . $bot . ']');
+      $new->set('field_auto_create', FALSE);
+      $new->save();
+    }
+  }
 }
 
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   switch ($entity->bundle()) {
     case 'summary':
       ocha_ai_summarize_node_update_summary($entity);
@@ -45,6 +83,7 @@ function ocha_ai_summarize_node_update(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'summary') {
     return;
   }
@@ -61,6 +100,8 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
 
   $current_state = $entity->moderation_state->value;
   $automatic_mode = $entity->field_automatic_mode->value;
+  $document_language = $entity->field_document_language->value ?? 'eng';
+  $output_language = $entity->field_output_language->value ?? 'eng';
 
   if (!$current_state) {
     return;
@@ -99,7 +140,10 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
   $item = new \stdClass();
   $item->nid = $entity->id();
   $item->brain = $entity->get('field_ai_brain')->value;
+  $item->language = $document_language;
+  $item->output_language = $output_language;
   $item->num_paragraphs = $entity->get('field_number_of_paragraphs')->value ?? 3;
+
   $queue->createItem($item);
 }
 
@@ -107,6 +151,7 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'action_points') {
     return;
   }
@@ -123,6 +168,8 @@ function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
 
   $current_state = $entity->moderation_state->value;
   $automatic_mode = $entity->field_automatic_mode->value;
+  $document_language = $entity->field_document_language->value ?? 'eng';
+  $output_language = $entity->field_output_language->value ?? 'eng';
 
   if (!$current_state) {
     return;
@@ -161,6 +208,9 @@ function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
   $item = new \stdClass();
   $item->nid = $entity->id();
   $item->brain = $entity->get('field_ai_brain')->value;
+  $item->language = $document_language;
+  $item->output_language = $output_language;
+
   $queue->createItem($item);
 }
 
@@ -183,6 +233,12 @@ function ocha_ai_summarize_form_node_summary_edit_form_alter(&$form, FormStateIn
  */
 function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_summary_form') {
+    // Remove OpenAi.
+    if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
+      unset($form['field_ai_brain']['widget']['#options']['openai']);
+    }
+
+    $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_summary']['#access'] = FALSE;
     $form['moderation_state']['#access'] = FALSE;
@@ -190,10 +246,15 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
     return;
   }
 
+  /** @var \Drupal\node\Entity\Node $node */
   $node = $form_state->getFormObject()->getEntity();
   $current_state = $node->moderation_state->value;
   if (!$current_state) {
     return;
+  }
+
+  if (isset($form['field_auto_create'])) {
+    $form['field_auto_create']['#disabled'] = TRUE;
   }
 
   switch ($current_state) {
@@ -207,6 +268,8 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
 
     case 'text_extracted':
       $form['field_summary']['#access'] = FALSE;
+      $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       break;
 
     case 'summarize':
@@ -217,11 +280,15 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
 
       $form['field_summary']['#access'] = FALSE;
       $form['moderation_state']['#access'] = FALSE;
+      $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       break;
 
     case 'summarized':
       $form['field_number_of_paragraphs']['#disabled'] = TRUE;
       $form['field_document_text']['#disabled'] = TRUE;
+      $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
       unset($form['field_document_text']['widget']['add_more']);
 
@@ -250,6 +317,12 @@ function ocha_ai_summarize_form_node_action_points_edit_form_alter(&$form, FormS
  */
 function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'node_action_points_form') {
+    // Remove OpenAi.
+    if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
+      unset($form['field_ai_brain']['widget']['#options']['openai']);
+    }
+
+    $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_action_points']['#access'] = FALSE;
     $form['moderation_state']['#access'] = FALSE;
@@ -257,6 +330,7 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
     return;
   }
 
+  /** @var \Drupal\node\Entity\Node $node */
   $node = $form_state->getFormObject()->getEntity();
   $current_state = $node->moderation_state->value;
   if (!$current_state) {
@@ -274,10 +348,14 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
 
     case 'text_extracted':
       $form['field_action_points']['#access'] = FALSE;
+      $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       break;
 
     case 'action_points':
       $form['field_document_text']['#disabled'] = TRUE;
+      $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
       unset($form['field_document_text']['widget']['add_more']);
 
@@ -287,6 +365,8 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
 
     case 'action_points_created':
       $form['field_document_text']['#disabled'] = TRUE;
+      $form['field_document_language']['#access'] = FALSE;
+      $form['field_output_language']['#access'] = FALSE;
       unset($form['field_document_text']['widget'][$form['field_document_text']['widget']['#max_delta']]);
       unset($form['field_document_text']['widget']['add_more']);
 
@@ -300,6 +380,7 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
   switch ($entity->bundle()) {
     case 'summary':
       ocha_ai_summarize_node_view_summary($build, $entity, $display, $view_mode);
@@ -316,6 +397,7 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'summary') {
     return;
   }
@@ -392,12 +474,35 @@ function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $ent
     '#items' => array_values($states),
     '#weight' => -100,
   ];
+
+  if ($active == 'summarized' && ocha_ai_summarize_file_is_shared($entity)) {
+    $build['compare'] = [
+      '#type' => 'link',
+      '#title' => t('Compare summaries'),
+      '#url' => Url::fromRoute('ocha_ai_summarize.compare.summary', [
+        'id' => $entity->id(),
+      ]),
+      '#prefix' => '<div class="node--compare-link">',
+      '#suffix' => '</div>',
+      '#attributes' => [
+        'class' => [
+          'cd-button',
+        ],
+      ],
+      '#weight' => 100,
+    ];
+  }
+
+  if ($entity->hasField('field_ai_feedback') && $active != 'summarized') {
+    unset($build['field_ai_feedback']);
+  }
 }
 
 /**
  * Implements hook_ENTITY_TYPE_view().
  */
 function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->bundle() !== 'action_points') {
     return;
   }
@@ -474,6 +579,43 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
     '#items' => array_values($states),
     '#weight' => -100,
   ];
+
+  if ($active == 'action_points_created' && ocha_ai_summarize_file_is_shared($entity)) {
+    $build['compare'] = [
+      '#type' => 'link',
+      '#title' => t('Compare action points'),
+      '#url' => Url::fromRoute('ocha_ai_summarize.compare.action_points', [
+        'id' => $entity->id(),
+      ]),
+      '#prefix' => '<div class="node--compare-link">',
+      '#suffix' => '</div>',
+      '#attributes' => [
+        'class' => [
+          'cd-button',
+        ],
+      ],
+      '#weight' => 100,
+    ];
+  }
+
+  if ($entity->hasField('field_ai_feedback') && $active != 'action_points_created') {
+    unset($build['field_ai_feedback']);
+  }
+}
+
+/**
+ * Check if source file is used by multiple nodes.
+ */
+function ocha_ai_summarize_file_is_shared($node) {
+  /** @var \Drupal\node\Entity\Node $nodes[] */
+  $nodes = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->loadByProperties([
+      'type' => $node->bundle(),
+      'field_document.target_id' => $node->get('field_document')->target_id,
+    ]);
+
+  return count($nodes) > 1;
 }
 
 /**
@@ -489,6 +631,7 @@ function ocha_ai_summarize_get_num_pages($filename) {
   $process->setTimeout(10);
   $process->run();
   if (!$process->isSuccessful()) {
+    \Drupal::logger('AI Summarize')->error('PDF Info failed: ' . $process->getErrorOutput());
     return FALSE;
   }
 
@@ -502,7 +645,7 @@ function ocha_ai_summarize_get_num_pages($filename) {
 /**
  * Extract text for each page separately.
  */
-function ocha_ai_summarize_extract_pages_from_doc($filename) {
+function ocha_ai_summarize_extract_pages_from_doc($filename, $document_language = 'eng') {
   $reader_name = '';
   $file_parts = pathinfo($filename);
   switch (strtolower($file_parts['extension'])) {
@@ -553,6 +696,82 @@ function ocha_ai_summarize_extract_pages_from_doc($filename) {
 /**
  * Extract text for each page separately.
  */
+function ocha_ai_summarize_extract_pages_from_pdf_ocr($filename, $document_language = 'eng') {
+  /** @var \Drupal\Core\File\FileSystemInterface $fileSystem */
+  $fileSystem = \Drupal::service('file_system');
+
+  // Create temp file location.
+  $dir = 'temporary://' . md5($filename);
+  $fileSystem->prepareDirectory($dir, FileSystemInterface::CREATE_DIRECTORY || FileSystemInterface::MODIFY_PERMISSIONS);
+  $absolute_path = $fileSystem->realpath($dir);
+
+  // Convert PDF to png.
+  $command = [
+    'gs',
+    '-dBATCH',
+    '-dFILTERIMAGE',
+    '-dNOPAUSE',
+    '-sDEVICE=pnggray',
+    '-r600',
+    '-dUseCropBox',
+    '-sOutputFile=' . $absolute_path . '/page-%04d.png',
+    $filename,
+  ];
+
+  $process = new Process($command);
+  $process->setTimeout(0);
+  $process->setWorkingDirectory($dir);
+  $process->run();
+
+  if (!$process->isSuccessful()) {
+    \Drupal::logger('AI Summarize')->error('PDF Extraction failed: ' . $process->getErrorOutput());
+    return FALSE;
+  }
+
+  // Run OCR on the files.
+  $files = $fileSystem->scanDirectory($absolute_path, '/png$/');
+  asort($files);
+  foreach ($files as $file) {
+    $command = [
+      'tesseract',
+      '-l',
+      $document_language,
+      '--dpi',
+      '600',
+      $file->uri,
+      $file->uri,
+    ];
+
+    $process = new Process($command);
+    $process->setTimeout(0);
+    $process->setWorkingDirectory($dir);
+    $process->run();
+
+    if (!$process->isSuccessful()) {
+      \Drupal::logger('AI Summarize')->error('PDF Extraction failed: ' . $process->getErrorOutput());
+      return FALSE;
+    }
+
+    $fileSystem->delete($file->uri);
+  }
+
+  // Combine all pages into one.
+  $files = $fileSystem->scanDirectory($absolute_path, '/png.txt$/');
+  asort($files);
+  $text = '';
+  foreach ($files as $file) {
+    $text .= file_get_contents($file->uri);
+    $text .= "\n";
+
+    $fileSystem->delete($file->uri);
+  }
+
+  return $text;
+}
+
+/**
+ * Extract text for each page separately.
+ */
 function ocha_ai_summarize_extract_pages_from_pdf($filename) {
   $pages = [];
   $num_pages = ocha_ai_summarize_get_num_pages($filename);
@@ -572,6 +791,7 @@ function ocha_ai_summarize_extract_pages_from_pdf($filename) {
     $process->setTimeout(10);
     $process->run();
     if (!$process->isSuccessful()) {
+      \Drupal::logger('AI Summarize')->error('PDF Extraction failed: ' . $process->getErrorOutput());
       return FALSE;
     }
 
@@ -617,17 +837,9 @@ function ocha_ai_summarize_extract_pages_from_pdf($filename) {
  * Upload file to S3.
  */
 function ocha_ai_summarize_upload_to_s3($file_name) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $client = new S3Client([
-    'credentials' => [
-      'key' => $access_key,
-      'secret' => $secret_key,
-    ],
-    'region' => 'us-east-1',
-  ]);
+  $client = new S3Client($client_options);
 
   $bucket_name = 'ai-summarize-pdfs';
   $key_name = basename($file_name);
@@ -643,17 +855,9 @@ function ocha_ai_summarize_upload_to_s3($file_name) {
  * Extract text using AWS Textract.
  */
 function ocha_ai_summarize_texttract($file_name) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $client = new TextractClient([
-    'region' => 'us-east-1',
-    'credentials' => [
-      'key' => $access_key,
-      'secret' => $secret_key,
-    ],
-  ]);
+  $client = new TextractClient($client_options);
 
   $bucket_name = 'ai-summarize-pdfs';
   $key_name = basename($file_name);
@@ -665,7 +869,9 @@ function ocha_ai_summarize_texttract($file_name) {
         'Name' => $key_name,
       ],
     ],
-    'FeatureTypes' => [],
+    'FeatureTypes' => [
+      'LAYOUT',
+    ],
   ];
 
   $result = $client->startDocumentTextDetection($options);
@@ -677,17 +883,9 @@ function ocha_ai_summarize_texttract($file_name) {
  * Get extracted text using AWS Textract.
  */
 function ocha_ai_summarize_texttract_get_text($job_id) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $client = new TextractClient([
-    'region' => 'us-east-1',
-    'credentials' => [
-      'key' => $access_key,
-      'secret' => $secret_key,
-    ],
-  ]);
+  $client = new TextractClient($client_options);
 
   $options = [
     'JobId' => $job_id,
@@ -737,45 +935,102 @@ function ocha_ai_summarize_http_call_openai($query) {
     'Authorization' => 'Bearer ' . $config->get('openai_token'),
   ];
 
-  $response = $http_client->request(
-    'POST',
-    $url,
-    [
-      'headers' => $headers,
-      'json' => $query,
-    ],
-  );
+  try {
+    $response = $http_client->request(
+      'POST',
+      $url,
+      [
+        'timeout' => 600,
+        'headers' => $headers,
+        'json' => $query,
+      ],
+    );
 
-  $body = $response->getBody() . '';
-  return json_decode($body, TRUE);
+    $body = $response->getBody() . '';
+    return json_decode($body, TRUE);
+  }
+  catch (ClientException $e) {
+    \Drupal::logger('AI - OpenAI')->error($e->getMessage());
+  }
+  catch (Exception $e) {
+    \Drupal::logger('AI - OpenAI')->error($e->getMessage());
+  }
+
+  return '';
 }
 
 /**
  * Make chat call to Azure.
  */
-function ocha_ai_summarize_http_call_azure($query) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $endpoint = $config->get('azure_endpoint');
-  $key = $config->get('azure_apikey');
+function ocha_ai_summarize_http_call_azure($messages) {
+  $client = ocha_ai_summarize_get_client();
 
-  $http_client = \Drupal::httpClient();
+  try {
+    $payload = [
+      'messages' => $messages,
+      'temperature' => 0.0,
+      'top_p' => 0.9,
+      'max_tokens' => 4000,
+    ];
 
-  $headers = [
-    'Content-Type' => 'application/json',
-    'API-KEY' => $key,
-  ];
+    $response = $client->chat()->create($payload);
 
-  $response = $http_client->request(
-    'POST',
-    $endpoint,
-    [
-      'headers' => $headers,
-      'json' => $query,
-    ],
-  );
+    $data = $response->toArray();
+    return trim($data['choices'][0]['message']['content'] ?? '');
+  }
+  catch (ClientException $e) {
+    \Drupal::logger('AI - Azure')->error($e->getMessage());
+  }
+  catch (Exception $e) {
+    \Drupal::logger('AI - Azure')->error($e->getMessage());
+  }
 
-  $body = $response->getBody() . '';
-  return json_decode($body, TRUE);
+  return '';
+}
+
+/**
+ * Get the Azure OpenAI API client.
+ *
+ * @return \OpenAI\Client
+ *   API Client.
+ */
+function ocha_ai_summarize_get_client(): Client {
+  static $client = NULL;
+
+  if (!$client) {
+    $config = \Drupal::config('ocha_ai_summarize.settings');
+    $endpoint = $config->get('azure_endpoint');
+    $api_key = $config->get('azure_apikey');
+
+    $version = '2024-02-15-preview';
+    $model = 'gpt-35-turbo-16k';
+
+    // Workaround for https://github.com/openai-php/client/issues/218.
+    $stack = HandlerStack::create();
+    $stack->push(
+      Middleware::mapResponse(function (ResponseInterface $response) use ($model) {
+        if (!$response->hasHeader('openai-model')) {
+          $response = $response->withHeader('openai-model', $model);
+        }
+        if (!$response->hasHeader('openai-processing-ms')) {
+          $response = $response->withHeader('openai-processing-ms', '1');
+        }
+        if (!$response->hasHeader('x-request-id')) {
+          $response = $response->withHeader('x-request-id', 'abc');
+        }
+        return $response;
+      })
+    );
+    $guzzle = new GuzzleClient(['handler' => $stack]);
+
+    $client = \OpenAI::factory()
+      ->withBaseUri($endpoint)
+      ->withHttpHeader('api-key', $api_key)
+      ->withQueryParam('api-version', $version)
+      ->withHttpClient($guzzle)
+      ->make();
+  }
+  return $client;
 }
 
 /**
@@ -783,45 +1038,43 @@ function ocha_ai_summarize_http_call_azure($query) {
  */
 function ocha_ai_summarize_http_call_bedrock($prompt) {
   $config = \Drupal::config('ocha_ai_summarize.settings');
-  $endpoint = $config->get('bedrock_endpoint');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
   $model = $config->get('bedrock_model');
 
-  $headers = [
-    'Content-Type' => 'application/json',
-    'Accept' => 'application/json',
+  $client_options = ocha_ai_summarize_get_aws_client_options();
+
+  $bedRock = new BedrockRuntimeClient($client_options);
+
+  $payload = [
+    'accept' => 'application/json',
+    'body' => json_encode([
+      'inputText' => $prompt,
+      'textGenerationConfig' => [
+        'maxTokenCount' => 4000,
+        'stopSequences' => [],
+        'temperature' => 0.0,
+        'topP' => 0.9,
+      ],
+    ]),
+    'contentType' => 'application/json',
     'modelId' => $model,
   ];
 
-  $version = '1.1';
+  try {
+    /** @var \Aws\Result $response */
+    $response = $bedRock->invokeModel($payload);
+  }
+  catch (\Exception $exception) {
+    \Drupal::logger('AI - BedRock')->error($exception->getMessage());
+    return '';
+  }
 
-  $body = [
-    'inputText' => $prompt,
-    'textGenerationConfig' => [
-      'maxTokenCount' => 4000,
-      'stopSequences' => [],
-      'temperature' => 0,
-      'topP' => 1,
-    ],
-  ];
-
-  $client = new Client([
-    'timeout' => 30,
-  ]);
-
-  $request = new Request('POST', $endpoint, $headers, json_encode($body), $version);
-
-  $region = 'us-east-1';
-  $service = 'bedrock';
-  $signature = new SignatureV4($service, $region);
-  $credentials = new Credentials($access_key, $secret_key);
-
-  $request = $signature->signRequest($request, $credentials);
-  $response = $client->send($request);
-
-  $body = $response->getBody() . '';
-  return json_decode($body, TRUE);
+  try {
+    return json_decode($response->get('body')->getContents(), TRUE);
+  }
+  catch (\Exception $exception) {
+    \Drupal::logger('AI - BedRock')->error($exception->getMessage());
+    return '';
+  }
 }
 
 /**
@@ -841,7 +1094,7 @@ function ocha_ai_summarize_http_call_claude($prompt) {
   ];
 
   $body = [
-    'model' => 'claude-2',
+    'model' => 'claude-instant-v1',
     'prompt' => $prompt,
     "stop_sequences" => [
       "\\n\\nHuman:",
@@ -851,15 +1104,189 @@ function ocha_ai_summarize_http_call_claude($prompt) {
   ];
 
   $http_client = \Drupal::httpClient();
-  $response = $http_client->request(
-    'POST',
-    $endpoint,
-    [
-      'headers' => $headers,
-      'json' => $body,
-    ],
-  );
 
-  $body = $response->getBody() . '';
-  return json_decode($body, TRUE);
+  try {
+    $response = $http_client->request(
+      'POST',
+      $endpoint,
+      [
+        'timeout' => 600,
+        'headers' => $headers,
+        'json' => $body,
+      ],
+    );
+
+    $body = $response->getBody() . '';
+    return json_decode($body, TRUE);
+  }
+  catch (ClientException $e) {
+    \Drupal::logger('AI - Claude')->error($e->getMessage());
+  }
+  catch (Exception $e) {
+    \Drupal::logger('AI - Claude')->error($e->getMessage());
+  }
+
+  return '';
+}
+
+/**
+ * Only show block on final step.
+ */
+function ocha_ai_summarize_block_access(Block $block, $operation, AccountInterface $account) {
+  if ($block->id() == 'common_design_subtheme_adminfeedbackblock') {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    if (($node instanceof NodeInterface) && !$node->isPublished()) {
+      if ($node->isPublished()) {
+        return AccessResult::neutral();
+      }
+
+      $current_state = $node->moderation_state->value ?? FALSE;
+      if ($current_state != 'summarized' && $current_state != 'action_points_created') {
+        return AccessResult::forbiddenIf(TRUE)->addCacheableDependency($block);
+      }
+    }
+
+    return AccessResult::neutral();
+  }
+}
+
+/**
+ * Check token length and truncate if needed.
+ */
+function ocha_ai_summarize_check_length($text, $bot) {
+  $max_tokens = 42000;
+
+  switch ($bot) {
+    case 'openai':
+      $max_tokens = 3.5 * 16385;
+      break;
+
+    case 'azure_trained':
+      $max_tokens = 2 * 8192;
+      break;
+
+    case 'bedrock':
+      $max_tokens = 3.5 * 42000;
+      break;
+  }
+
+  $max_tokens = round($max_tokens, 0);
+
+  // 1 token ~= 4 characters.
+  if (strlen($text) > $max_tokens) {
+    \Drupal::logger('AI - Max tokens - ' . $bot)->warning('Too many tokens needed, string truncated to ' . $max_tokens);
+    $text = substr($text, 0, $max_tokens);
+  }
+
+  return $text;
+}
+
+/**
+ * Implements hook_locale_translation_projects_alter().
+ */
+function ocha_ai_summarize_locale_translation_projects_alter(&$projects) {
+  $path = \Drupal::moduleHandler()->getModule('ocha_ai_summarize')->getPath();
+
+  $projects['ocha_ai_summarize'] = [
+    'name' => 'ocha_ai_summarize',
+    'info' => [
+      'name' => 'OCHA AI Summarize',
+      'package' => 'Other',
+      'version' => 'custom',
+      'project' => 'ocha_ai_summarize',
+      'datestamp' => '0',
+      'interface translation server pattern' => $path . '/translations/%language.po',
+    ],
+    'datestamp' => '0',
+    'project_type' => 'module',
+    'project_status' => TRUE,
+  ];
+}
+
+/**
+ * Get language name in  a language.
+ */
+function ocha_ai_summarize_get_lang_name_translated($code) {
+  $language = ocha_ai_summarize_get_lang_name($code);
+  $output_language = ocha_ai_summarize_get_lang_code($code);
+
+  if ($output_language == 'en') {
+    return $language;
+  }
+
+  return t('@language', [
+    '@language' => $language,
+  ], [
+    'langcode' => $output_language,
+  ])->__toString();
+}
+
+/**
+ * Get language name.
+ */
+function ocha_ai_summarize_get_lang_name($code) {
+  $code = ocha_ai_summarize_get_lang_code($code);
+  $langcodes = \Drupal::languageManager()->getLanguages();
+
+  return $langcodes[$code]->getName();
+}
+
+/**
+ * Map lang codes from tesseract to Drupal.
+ */
+function ocha_ai_summarize_get_lang_code($code) {
+  $lang_codes = [
+    'Arabic' => 'ar',
+    'chi_sim' => 'zh-hans',
+    'eng' => 'en',
+    'fra' => 'fr',
+    'spa' => 'es',
+    'rus' => 'ru',
+  ];
+
+  return $lang_codes[$code] ?? 'en';
+}
+
+/**
+ * Helper to obtain AWS client options.
+ *
+ * An array with cedentials and a region. The credentials are either
+ * the key and secret from config, or temporary ones via a role.
+ *
+ * @return array
+ *   A keyed array containing AWS client options.
+ */
+function ocha_ai_summarize_get_aws_client_options() {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $region = $config->get('aws_bedrock_region');
+  $role_arn = $config->get('aws_bedrole_role_arn', NULL);
+
+  if (!empty($role_arn)) {
+    $stsClient = new StsClient([
+      'region' => $region,
+      'version' => 'latest',
+    ]);
+
+    $result = $stsClient->AssumeRole([
+      'RoleArn' => $role_arn,
+      'RoleSessionName' => 'aws-bedrock-ocha-ai-summarize',
+    ]);
+
+    $credentials = [
+      'key'    => $result['Credentials']['AccessKeyId'],
+      'secret' => $result['Credentials']['SecretAccessKey'],
+      'token'  => $result['Credentials']['SessionToken'],
+    ];
+  }
+  else {
+    $credentials = [
+      'key' => $config->get('bedrock_access_key'),
+      'secret' => $config->get('bedrock_secret_key'),
+    ];
+  }
+
+  return [
+    'credentials' => $credentials,
+    'region' => $region,
+  ];
 }

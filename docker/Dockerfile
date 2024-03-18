@@ -10,11 +10,11 @@ COPY . /srv/www
 
 WORKDIR /srv/www
 
-# Add pdfinfo and pdftotext.
-RUN apk add -U --no-cache poppler-utils
-
 # Clean up previous composer installation and run new one.
-RUN rm -rf ./vendor && composer install --no-interaction --no-dev
+RUN rm -rf ./vendor && \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1 \
+    composer install --quiet --no-dev --prefer-dist
 
 # Copy settings to default site location.
 RUN cp -a docker/settings.php docker/services.yml docker/memcache.services.yml html/sites/default
@@ -44,6 +44,9 @@ ENV  NGINX_SERVERNAME=ai-summarize.docksal.site \
 LABEL info.humanitarianresponse.build.date=$BUILD_DATE \
       info.humanitarianresponse.build.vcs-url=$VCS_URL \
       info.humanitarianresponse.build.vcs-ref=$VCS_REF
+
+# Add PDF and OCR utilities.
+RUN apk add -U --no-cache poppler-utils ghostscript tesseract-ocr tesseract-ocr-data-eng tesseract-ocr-data-chi_sim tesseract-ocr-data-fra tesseract-ocr-data-rus tesseract-ocr-data-spa tesseract-ocr-data-ara
 
 COPY --from=builder /srv/www/assets /srv/www/assets/
 COPY --from=builder /srv/www/config /srv/www/config/

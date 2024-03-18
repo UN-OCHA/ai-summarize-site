@@ -1,0 +1,21 @@
+uuid: e552de9d-bc46-4962-994a-f5a76bd147ad
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_auto_create
+    - node.type.summary
+id: node.summary.field_auto_create
+field_name: field_auto_create
+entity_type: node
+bundle: summary
+label: "Automatically create for other AI's"
+description: "When checked will automatically create the same workflow for the other AI's."
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

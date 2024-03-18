@@ -3,13 +3,19 @@ langcode: en
 status: true
 dependencies:
   config:
+    - core.entity_view_display.comment.ai_feedback.default
     - field.field.node.action_points.field_action_points
     - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_ai_feedback
+    - field.field.node.action_points.field_auto_create
     - field.field.node.action_points.field_automatic_mode
     - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_language
     - field.field.node.action_points.field_document_text
+    - field.field.node.action_points.field_output_language
     - node.type.action_points
   module:
+    - comment
     - file
     - options
     - text
@@ -22,14 +28,14 @@ content:
   content_moderation_control:
     settings: {  }
     third_party_settings: {  }
-    weight: 4
+    weight: 6
     region: content
   field_action_points:
     type: text_default
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 3
+    weight: 5
     region: content
   field_ai_brain:
     type: list_default
@@ -37,6 +43,15 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 1
+    region: content
+  field_ai_feedback:
+    type: comment_default
+    label: above
+    settings:
+      view_mode: default
+      pager_id: 0
+    third_party_settings: {  }
+    weight: 7
     region: content
   field_automatic_mode:
     type: boolean
@@ -56,11 +71,23 @@ content:
     third_party_settings: {  }
     weight: 2
     region: content
-  links:
+  field_document_language:
+    type: list_default
+    label: inline
     settings: {  }
     third_party_settings: {  }
-    weight: 5
+    weight: 3
+    region: content
+  field_output_language:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
     region: content
 hidden:
+  field_auto_create: true
   field_document_text: true
   langcode: true
+  links: true
+  private: true

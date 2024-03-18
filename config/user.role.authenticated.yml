@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   module:
+    - comment
     - media
     - node_view_permissions
     - system
@@ -13,7 +14,10 @@ label: 'Authenticated user'
 weight: -9
 is_admin: false
 permissions:
+  - 'access comments'
   - 'access content'
+  - 'edit own comments'
+  - 'skip comment approval'
   - 'view any page content'
   - 'view media'
   - 'view own action_points content'

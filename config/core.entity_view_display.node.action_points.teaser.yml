@@ -6,26 +6,47 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.action_points.field_action_points
     - field.field.node.action_points.field_ai_brain
+    - field.field.node.action_points.field_ai_feedback
+    - field.field.node.action_points.field_auto_create
     - field.field.node.action_points.field_automatic_mode
     - field.field.node.action_points.field_document
+    - field.field.node.action_points.field_document_language
     - field.field.node.action_points.field_document_text
+    - field.field.node.action_points.field_output_language
     - node.type.action_points
   module:
+    - private_content
     - user
 id: node.action_points.teaser
 targetEntityType: node
 bundle: action_points
 mode: teaser
 content:
+  content_moderation_control:
+    settings: {  }
+    third_party_settings: {  }
+    weight: -20
+    region: content
   links:
     settings: {  }
     third_party_settings: {  }
     weight: 100
     region: content
+  private:
+    type: private
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
 hidden:
   field_action_points: true
   field_ai_brain: true
+  field_ai_feedback: true
+  field_auto_create: true
   field_automatic_mode: true
   field_document: true
+  field_document_language: true
   field_document_text: true
+  field_output_language: true
   langcode: true

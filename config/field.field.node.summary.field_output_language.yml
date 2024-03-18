@@ -1,0 +1,21 @@
+uuid: a0bbf1b3-e024-4d50-89e9-bdd292f82b83
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_output_language
+    - node.type.summary
+  module:
+    - options
+id: node.summary.field_output_language
+field_name: field_output_language
+entity_type: node
+bundle: summary
+label: 'Output language'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

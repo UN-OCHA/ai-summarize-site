@@ -1,0 +1,21 @@
+uuid: 3cb83d8b-0d4a-4811-a2c6-95dc6b66530f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_output_language
+    - node.type.action_points
+  module:
+    - options
+id: node.action_points.field_output_language
+field_name: field_output_language
+entity_type: node
+bundle: action_points
+label: 'Output language'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

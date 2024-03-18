@@ -3,9 +3,12 @@ _core:
 module:
   admin_denied: 0
   allowed_formats: 0
+  amazon_ses: 0
+  aws: 0
   block: 0
   breakpoint: 0
   ckeditor5: 0
+  comment: 0
   components: 0
   config: 0
   config_split: 0
@@ -36,20 +39,24 @@ module:
   link: 0
   locale: 0
   maintenance200: 0
+  mailsystem: 0
   media: 0
   media_library: 0
   memcache: 0
   memcache_admin: 0
   menu_link_content: 0
   menu_ui: 0
+  monitoring: 0
   mysql: 0
   node: 0
   node_view_permissions: 0
   ocha_ai_summarize: 0
+  ocha_monitoring: 0
   options: 0
   page_cache: 0
   path: 0
   path_alias: 0
+  private_content: 0
   queue_ui: 0
   redirect: 0
   responsive_image: 0

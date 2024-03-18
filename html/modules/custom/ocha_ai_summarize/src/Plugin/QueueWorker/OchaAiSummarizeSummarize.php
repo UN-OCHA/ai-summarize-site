@@ -6,6 +6,7 @@ use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The entity type manager.
@@ -53,6 +56,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
     $num_paragraphs = $data->num_paragraphs;
+    $document_language = $data->language ?? 'eng';
+    $output_language = $data->output_language ?? 'eng';
 
     if (empty($nid)) {
       return;
@@ -79,6 +84,23 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       return;
     }
 
+    $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs', [
+      '@num_paragraphs' => $num_paragraphs,
+    ], [
+      'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+    ])->__toString();
+
+    if ($document_language !== $output_language) {
+      $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs and translate to @output_language', [
+        '@num_paragraphs' => $num_paragraphs,
+        '@output_language' => ocha_ai_summarize_get_lang_name_translated($output_language),
+      ], [
+        'langcode' => ocha_ai_summarize_get_lang_code($document_language),
+      ])->__toString();
+    }
+
+    $prompt .= ":\n\n";
+
     // Claude can handle all text at once.
     if ($bot == 'claude') {
       $text = '';
@@ -86,7 +108,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         $text = $document_text->value . "\n";
       }
 
-      $summary = $this->sendToClaudeAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+      $text = ocha_ai_summarize_check_length($text, $bot);
+      $summary = $this->sendToClaudeAi($prompt . $text);
     }
     else {
       // Summarize each page.
@@ -99,17 +122,19 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
           continue;
         }
 
+        $text = ocha_ai_summarize_check_length($text, $bot);
+
         switch ($bot) {
           case 'openai':
-            $results[] = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToOpenAi($prompt . $text);
             break;
 
           case 'azure_trained':
-            $results[] = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToAzureAi($prompt . $text);
             break;
 
           case 'bedrock':
-            $results[] = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+            $results[] = $this->sendToBedRock($prompt . $text);
             break;
 
         }
@@ -122,17 +147,19 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         $text .= "\n";
       }
 
+      $text = ocha_ai_summarize_check_length($text, $bot);
+
       switch ($bot) {
         case 'openai':
-          $summary = $this->sendToOpenAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToOpenAi($prompt . $text);
           break;
 
         case 'azure_trained':
-          $summary = $this->sendToAzureAi("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToAzureAi($prompt . $text);
           break;
 
         case 'bedrock':
-          $summary = $this->sendToBedRock("Summerize the following text in $num_paragraphs paragraphs:\n\n" . $text);
+          $summary = $this->sendToBedRock($prompt . $text);
           break;
       }
     }
@@ -169,20 +196,18 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
   protected function sendToAzureAi($text) : string {
     $result = ocha_ai_summarize_http_call_azure(
       [
-        'messages' => [
-          [
-            'role' => 'system',
-            'content' => 'You are an AI assistant that summarizes information.',
-          ],
-          [
-            'role' => 'user',
-            'content' => $text,
-          ],
+        [
+          'role' => 'system',
+          'content' => $this->t('You are an AI assistant that summarizes information.'),
+        ],
+        [
+          'role' => 'user',
+          'content' => $text,
         ],
       ],
     );
 
-    return $result['choices'][0]['message']['content'] ?? '';
+    return $result ?? '';
   }
 
   /**

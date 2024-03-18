@@ -1,0 +1,104 @@
+uuid: aeaaa913-b6f9-4412-b1da-586b728af2fc
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: HaL0P0uZ-Ej7bGqTmmN6ZhrX1cK-IJEWfQv8xDom61A
+id: monitoring_installed_modules
+label: 'Installed modules'
+description: 'Installed only expected modules'
+category: System
+plugin_id: monitoring_installed_modules
+result_class: null
+value_label: 'Modules delta'
+value_type: number
+caching_time: 3600
+settings:
+  allow_additional: false
+  modules:
+    admin_denied: admin_denied
+    allowed_formats: allowed_formats
+    block: block
+    breakpoint: breakpoint
+    ckeditor5: ckeditor5
+    comment: comment
+    components: components
+    config: config
+    config_filter: config_filter
+    config_split: config_split
+    config_translation: config_translation
+    content_moderation: content_moderation
+    csp: csp
+    ctools: ctools
+    datetime: datetime
+    datetime_range: datetime_range
+    dblog: dblog
+    devel: devel
+    dynamic_page_cache: dynamic_page_cache
+    editor: editor
+    entity_reference_revisions: entity_reference_revisions
+    environment_indicator: environment_indicator
+    environment_indicator_ui: environment_indicator_ui
+    field: field
+    field_ui: field_ui
+    file: file
+    file_mdm: file_mdm
+    filter: filter
+    google_tag: google_tag
+    image: image
+    imageapi_optimize: imageapi_optimize
+    imageapi_optimize_binaries: imageapi_optimize_binaries
+    imagemagick: imagemagick
+    inline_form_errors: inline_form_errors
+    language: language
+    layout_discovery: layout_discovery
+    layout_paragraphs: layout_paragraphs
+    link: link
+    locale: locale
+    maintenance200: maintenance200
+    media: media
+    media_library: media_library
+    memcache: memcache
+    memcache_admin: memcache_admin
+    menu_link_content: menu_link_content
+    menu_ui: menu_ui
+    monitoring: monitoring
+    mysql: mysql
+    node: node
+    node_view_permissions: node_view_permissions
+    ocha_ai_summarize: ocha_ai_summarize
+    ocha_monitoring: ocha_monitoring
+    options: options
+    page_cache: page_cache
+    path: path
+    path_alias: path_alias
+    private_content: private_content
+    queue_ui: queue_ui
+    redirect: redirect
+    responsive_image: responsive_image
+    social_api: social_api
+    social_auth: social_auth
+    social_auth_hid: social_auth_hid
+    sophron: sophron
+    syslog: syslog
+    system: system
+    taxonomy: taxonomy
+    text: text
+    token: token
+    toolbar: toolbar
+    update: update
+    user: user
+    user_display_name: user_display_name
+    user_expire: user_expire
+    username_enumeration_prevention: username_enumeration_prevention
+    views_ui: views_ui
+    workflows: workflows
+    xmlsitemap_engines: xmlsitemap_engines
+    pathauto: pathauto
+    xmlsitemap: xmlsitemap
+    content_translation: content_translation
+    views: views
+    paragraphs: paragraphs
+    minimal: minimal
+thresholds:
+  type: none

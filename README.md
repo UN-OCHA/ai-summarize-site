@@ -25,9 +25,9 @@ $config['ocha_ai_summarize.settings']['claude_api_key'] = 'zz';
 ## Cron
 
 ```bash
-drush queue:process ocha_ai_summarize_extract_text
-drush queue:process ocha_ai_summarize_summarize
-drush queue:process ocha_ai_summarize_action_points
+drush queue:run ocha_ai_summarize_extract_text --verbose
+drush queue:run ocha_ai_summarize_summarize --verbose
+drush queue:run ocha_ai_summarize_action_points --verbose
 ```
 
 We can either use cron to run the queues or run them separatly
@@ -36,9 +36,9 @@ We can either use cron to run the queues or run them separatly
 
 1. User creates a new *Summary* node providing a title and a PDF file and which brain to use
 2. A queue item is created to extract the text
-3. `drush queue:process ocha_ai_summarize_extract_text`
+3. `drush queue:run ocha_ai_summarize_extract_text`
 4. The node is updated and the extracted text is added
 5. A queue item is created to summarize the text
-6. `drush queue:process ocha_ai_summarize_summarize`
+6. `drush queue:run ocha_ai_summarize_summarize`
 7. The node is updated and the summary is added
 8. User can proof-read and publish the node

@@ -4,14 +4,17 @@ status: true
 dependencies:
   module:
     - menu_ui
+    - private_content
 third_party_settings:
   menu_ui:
     available_menus: {  }
     parent: ''
+  private_content:
+    private: 3
 name: 'Action points'
 type: action_points
 description: ''
 help: ''
 new_revision: true
-preview_mode: 1
+preview_mode: 0
 display_submitted: false

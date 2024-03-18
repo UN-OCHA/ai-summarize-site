@@ -1,0 +1,33 @@
+uuid: d057b8d8-5c15-46eb-9e78-1fe21ae3e26c
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.ai_feedback
+    - field.field.comment.ai_feedback.comment_body
+    - field.field.comment.ai_feedback.field_rating
+  module:
+    - options
+    - text
+id: comment.ai_feedback.default
+targetEntityType: comment
+bundle: ai_feedback
+mode: default
+content:
+  comment_body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_rating:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  langcode: true
+  links: true

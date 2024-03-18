@@ -1,0 +1,23 @@
+uuid: 3c904166-5b56-4a35-92b9-3bfcec36db84
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.ai_feedback
+    - field.storage.comment.field_rating
+  module:
+    - options
+id: comment.ai_feedback.field_rating
+field_name: field_rating
+entity_type: comment
+bundle: ai_feedback
+label: Rating
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings: {  }
+field_type: list_integer
