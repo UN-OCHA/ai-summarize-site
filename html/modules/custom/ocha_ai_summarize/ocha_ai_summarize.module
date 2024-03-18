@@ -7,6 +7,7 @@
 
 use Aws\BedrockRuntime\BedrockRuntimeClient;
 use Aws\S3\S3Client;
+use Aws\Sts\StsClient;
 use Aws\Textract\TextractClient;
 use Drupal\block\Entity\Block;
 use Drupal\content_moderation\Entity\ContentModerationState;
@@ -836,17 +837,9 @@ function ocha_ai_summarize_extract_pages_from_pdf($filename) {
  * Upload file to S3.
  */
 function ocha_ai_summarize_upload_to_s3($file_name) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $client = new S3Client([
-    'credentials' => [
-      'key' => $access_key,
-      'secret' => $secret_key,
-    ],
-    'region' => 'us-east-1',
-  ]);
+  $client = new S3Client($client_options);
 
   $bucket_name = 'ai-summarize-pdfs';
   $key_name = basename($file_name);
@@ -862,17 +855,9 @@ function ocha_ai_summarize_upload_to_s3($file_name) {
  * Extract text using AWS Textract.
  */
 function ocha_ai_summarize_texttract($file_name) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $client = new TextractClient([
-    'region' => 'us-east-1',
-    'credentials' => [
-      'key' => $access_key,
-      'secret' => $secret_key,
-    ],
-  ]);
+  $client = new TextractClient($client_options);
 
   $bucket_name = 'ai-summarize-pdfs';
   $key_name = basename($file_name);
@@ -898,17 +883,9 @@ function ocha_ai_summarize_texttract($file_name) {
  * Get extracted text using AWS Textract.
  */
 function ocha_ai_summarize_texttract_get_text($job_id) {
-  $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $client = new TextractClient([
-    'region' => 'us-east-1',
-    'credentials' => [
-      'key' => $access_key,
-      'secret' => $secret_key,
-    ],
-  ]);
+  $client = new TextractClient($client_options);
 
   $options = [
     'JobId' => $job_id,
@@ -1061,22 +1038,11 @@ function ocha_ai_summarize_get_client(): Client {
  */
 function ocha_ai_summarize_http_call_bedrock($prompt) {
   $config = \Drupal::config('ocha_ai_summarize.settings');
-  $access_key = $config->get('bedrock_access_key');
-  $secret_key = $config->get('bedrock_secret_key');
   $model = $config->get('bedrock_model');
-  $region = 'us-east-1';
 
-  $credentials = [
-    'key' => $access_key,
-    'secret' => $secret_key,
-  ];
+  $client_options = ocha_ai_summarize_get_aws_client_options();
 
-  $options = [
-    'credentials' => $credentials,
-    'region'  => $region,
-  ];
-
-  $bedRock = new BedrockRuntimeClient($options);
+  $bedRock = new BedrockRuntimeClient($client_options);
 
   $payload = [
     'accept' => 'application/json',
@@ -1279,4 +1245,48 @@ function ocha_ai_summarize_get_lang_code($code) {
   ];
 
   return $lang_codes[$code] ?? 'en';
+}
+
+/**
+ * Helper to obtain AWS client options.
+ *
+ * An array with cedentials and a region. The credentials are either
+ * the key and secret from config, or temporary ones via a role.
+ *
+ * @return array
+ *   A keyed array containing AWS client options.
+ */
+function ocha_ai_summarize_get_aws_client_options() {
+  $config = \Drupal::config('ocha_ai_summarize.settings');
+  $region = $config->get('aws_bedrock_region');
+  $role_arn = $config->get('aws_bedrole_role_arn', NULL);
+
+  if (!empty($role_arn)) {
+    $stsClient = new StsClient([
+      'region' => $region,
+      'version' => 'latest',
+    ]);
+
+    $result = $stsClient->AssumeRole([
+      'RoleArn' => $role_arn,
+      'RoleSessionName' => 'aws-bedrock-ocha-ai-summarize',
+    ]);
+
+    $credentials = [
+      'key'    => $result['Credentials']['AccessKeyId'],
+      'secret' => $result['Credentials']['SecretAccessKey'],
+      'token'  => $result['Credentials']['SessionToken'],
+    ];
+  }
+  else {
+    $credentials = [
+      'key' => $config->get('bedrock_access_key'),
+      'secret' => $config->get('bedrock_secret_key'),
+    ];
+  }
+
+  return [
+    'credentials' => $credentials,
+    'region' => $region,
+  ];
 }
