@@ -83,6 +83,10 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
       return;
     }
 
+    \Drupal::logger('AI Summarize')->info('Generate action points for @file_name', [
+      '@file_name' => $data->file_name,
+    ]);
+
     $prompt = $this->t("Extract the action points from the following meeting minutes.", [], [
       'langcode' => ocha_ai_summarize_get_lang_code($document_language),
     ])->__toString();
