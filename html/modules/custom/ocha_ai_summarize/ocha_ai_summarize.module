@@ -144,6 +144,17 @@ function ocha_ai_summarize_node_update_summary(EntityInterface $entity) {
   $item->output_language = $output_language;
   $item->num_paragraphs = $entity->get('field_number_of_paragraphs')->value ?? 3;
 
+  $item->file_name = NULL;
+  /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $file_item */
+  $file_item = $entity->get('field_document')->first() ?? NULL;
+  if (!empty($file_item)) {
+    /** @var \Drupal\file\Entity\File $file */
+    $file = $this->entityTypeManager->getStorage('file')->load($file_item->getValue()['target_id']);
+    if (!empty($file)) {
+      $item->file_name = $file->getFilename();
+    }
+  }
+
   $queue->createItem($item);
 }
 
@@ -627,6 +638,8 @@ function ocha_ai_summarize_get_num_pages($filename) {
     $filename,
   ];
 
+  \Drupal::logger('AI Summarize')->info('PDF Info: ' . implode(' ', $command));
+
   $process = new Process($command);
   $process->setTimeout(10);
   $process->run();
@@ -718,6 +731,8 @@ function ocha_ai_summarize_extract_pages_from_pdf_ocr($filename, $document_langu
     $filename,
   ];
 
+  \Drupal::logger('AI Summarize')->info('Convert PDF to PNG: ' . implode(' ', $command));
+
   $process = new Process($command);
   $process->setTimeout(0);
   $process->setWorkingDirectory($dir);
@@ -741,6 +756,8 @@ function ocha_ai_summarize_extract_pages_from_pdf_ocr($filename, $document_langu
       $file->uri,
       $file->uri,
     ];
+
+    \Drupal::logger('AI Summarize')->info('PDF Extraction: ' . implode(' ', $command));
 
     $process = new Process($command);
     $process->setTimeout(0);
@@ -786,6 +803,8 @@ function ocha_ai_summarize_extract_pages_from_pdf($filename) {
       $filename,
       '-',
     ];
+
+    \Drupal::logger('AI Summarize')->info('PDF Extraction : ' . implode(' ', $command));
 
     $process = new Process($command);
     $process->setTimeout(10);

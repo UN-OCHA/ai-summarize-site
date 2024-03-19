@@ -97,6 +97,10 @@ class OchaAiSummarizeTextract extends QueueWorkerBase implements ContainerFactor
       return;
     }
 
+    \Drupal::logger('AI Summarize')->info('Extract text from @file_name using texttract', [
+      '@file_name' => $data->file_name,
+    ]);
+
     $absolute_path = $this->fileSystem->realpath($file->getFileUri());
 
     $text = ocha_ai_summarize_texttract($absolute_path);
