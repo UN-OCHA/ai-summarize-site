@@ -99,6 +99,10 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
       return;
     }
 
+    \Drupal::logger('AI Summarize')->info('Locally extract text from @file_name', [
+      '@file_name' => $data->file_name,
+    ]);
+
     // PDF or else.
     $absolute_path = $this->fileSystem->realpath($file->getFileUri());
     $file_parts = pathinfo($absolute_path);
