@@ -222,6 +222,17 @@ function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
   $item->language = $document_language;
   $item->output_language = $output_language;
 
+  $item->file_name = NULL;
+  /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $file_item */
+  $file_item = $entity->get('field_document')->first() ?? NULL;
+  if (!empty($file_item)) {
+    /** @var \Drupal\file\Entity\File $file */
+    $file = $this->entityTypeManager->getStorage('file')->load($file_item->getValue()['target_id']);
+    if (!empty($file)) {
+      $item->file_name = $file->getFilename();
+    }
+  }
+
   $queue->createItem($item);
 }
 
