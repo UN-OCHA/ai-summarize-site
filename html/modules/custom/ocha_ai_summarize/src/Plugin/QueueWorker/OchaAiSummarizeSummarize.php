@@ -85,16 +85,18 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     }
 
     if ($document_language !== $output_language) {
-      \Drupal::logger('AI Summarize')->info('Summarize the text from @file_name in @num_paragraphs paragraphs', [
-        '@file_name'      => $data->file_name,
-        '@num_paragraphs' => $num_paragraphs,
-      ]);
-    }
-    else {
-      \Drupal::logger('AI Summarize')->info('Summarize the text from @file_name in @num_paragraphs paragraphs and translate to @output_language', [
+      \Drupal::logger('AI Summarize')->info('Summarize the text from @file_name in @num_paragraphs paragraphs and translate to @output_language using @brain', [
+        '@brain'           => $data->brain,
         '@file_name'       => $data->file_name,
         '@num_paragraphs'  => $num_paragraphs,
         '@output_language' => ocha_ai_summarize_get_lang_name_translated($output_language),
+      ]);
+    }
+    else {
+      \Drupal::logger('AI Summarize')->info('Summarize the text from @file_name in @num_paragraphs paragraphs using @brain', [
+        '@brain'          => $data->brain,
+        '@file_name'      => $data->file_name,
+        '@num_paragraphs' => $num_paragraphs,
       ]);
     }
 
