@@ -1314,7 +1314,7 @@ function ocha_ai_summarize_get_entity_document(EntityInterface $entity) {
     return NULL;
   }
   /** @var \Drupal\file\Entity\File $file */
-  $file = \Drupal::entityTypeManager->getStorage('file')->load($file_item->getValue()['target_id']);
+  $file = \Drupal::entityTypeManager()->getStorage('file')->load($file_item->getValue()['target_id']);
   if (empty($file)) {
     return NULL;
   }
