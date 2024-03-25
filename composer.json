@@ -103,6 +103,9 @@
             "phpstan/extension-installer": true,
             "symfony/flex": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "abandoned": "report"
         }
     },
     "extra": {
