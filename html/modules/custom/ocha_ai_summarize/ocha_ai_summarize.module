@@ -19,6 +19,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
@@ -1319,4 +1320,20 @@ function ocha_ai_summarize_get_entity_document(EntityInterface $entity) {
     return NULL;
   }
   return $file->getFilename();
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function ocha_ai_summarize_user_presave(UserInterface $user) {
+  if ($user->isNew()) {
+    $parts = explode('@', $user->getInitialEmail());
+    if ($parts[1] != 'un.org') {
+      return;
+    }
+
+    $user->setUsername($user->getInitialEmail());
+    $user->activate();
+    $user->addRole('document_analyzer');
+  }
 }
