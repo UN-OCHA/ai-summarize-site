@@ -11,7 +11,7 @@ id: node.summary.field_ai_brain
 field_name: field_ai_brain
 entity_type: node
 bundle: summary
-label: 'AI Brain'
+label: 'AI Model'
 description: ''
 required: false
 translatable: false

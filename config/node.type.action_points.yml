@@ -14,7 +14,7 @@ third_party_settings:
 name: 'Action points'
 type: action_points
 description: ''
-help: ''
+help: "When saving you request for action points it will placed in a queue which is checked and processed very 10 minutes. You can check the status by going to the <a href=\"/\">Summaries</a> page.\r\n\r\nAnd we will also send an email, once your document has been fully processed."
 new_revision: true
 preview_mode: 0
 display_submitted: false
