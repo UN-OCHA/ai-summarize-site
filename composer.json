@@ -64,6 +64,7 @@
         "orakili/composer-drupal-info-file-patch-helper": "^1",
         "phpoffice/phpword": "^1.1",
         "unocha/common_design": "^9.2",
+        "unocha/gtm_barebones": "^1.1",
         "unocha/ocha_monitoring": "^1.0",
         "webflo/drupal-finder": "^1.2.2"
     },
