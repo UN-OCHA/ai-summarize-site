@@ -1335,5 +1335,8 @@ function ocha_ai_summarize_user_presave(UserInterface $user) {
     $user->setUsername($user->getInitialEmail());
     $user->activate();
     $user->addRole('document_analyzer');
+
+    \Drupal::messenger()->deleteAll();
+    \Drupal::messenger()->addMessage(t('Your account has been automatically approved, you can now log in.'));
   }
 }
