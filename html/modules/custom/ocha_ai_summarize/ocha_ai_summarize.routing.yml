@@ -14,3 +14,13 @@ ocha_ai_summarize.compare.action_points:
   requirements:
     _permission: 'ocha_ai_summarize compare summary'
     id: ^\d+$
+ocha_ai_summarize.my_documents:
+  path: '/my-documents/{arg_0}'
+  defaults:
+    _title_callback: '\Drupal\views\Routing\ViewPageController::getTitle'
+    _controller: '\Drupal\views\Routing\ViewPageController::handle'
+    view_id: 'my_documents'
+    display_id: 'page_1'
+    arg_0: ''
+  requirements:
+    _user_is_logged_in: 'TRUE'

@@ -1,0 +1,6 @@
+ocha_ai_summarize.my_documents:
+  title: 'My documents'
+  menu_name: main
+  description: 'Access you own documents.'
+  route_name: ocha_ai_summarize.my_documents
+  weight: 50
