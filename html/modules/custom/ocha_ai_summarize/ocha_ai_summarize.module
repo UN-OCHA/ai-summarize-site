@@ -19,6 +19,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
@@ -219,6 +220,14 @@ function ocha_ai_summarize_node_update_action_points(EntityInterface $entity) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function ocha_ai_summarize_form_comment_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['actions']['submit']['#value'] = t('Submit feedback');
+  $form['comment_body']['widget'][0]['#title'] = t('Your feedback');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function ocha_ai_summarize_form_node_summary_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   ocha_ai_summarize_form_node_summary_alter($form, $form_state, $form_id);
 }
@@ -385,13 +394,101 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
   /** @var \Drupal\node\Entity\Node $entity */
   switch ($entity->bundle()) {
     case 'summary':
-      ocha_ai_summarize_node_view_summary($build, $entity, $display, $view_mode);
+      ocha_ai_summarize_node_view_compare($build, $entity, $display, $view_mode);
       break;
 
     case 'action_points':
-      ocha_ai_summarize_node_view_action_points($build, $entity, $display, $view_mode);
+      ocha_ai_summarize_node_view_action_points_compare($build, $entity, $display, $view_mode);
       break;
 
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view_compare(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
+  if ($entity->bundle() !== 'summary') {
+    return;
+  }
+
+  if ($entity->isPublished()) {
+    return;
+  }
+
+  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
+  if (!$content_moderation_state) {
+    $active = 'document_uploaded';
+  }
+  else {
+    $active = $content_moderation_state->get('moderation_state')->value;
+  }
+
+  if ($active == 'summarized' && ocha_ai_summarize_file_is_shared($entity)) {
+    $build['compare'] = [
+      '#type' => 'link',
+      '#title' => t('Compare with other AI models'),
+      '#url' => Url::fromRoute('ocha_ai_summarize.compare.summary', [
+        'id' => $entity->id(),
+      ]),
+      '#prefix' => '<div class="node--compare-link">',
+      '#suffix' => '</div>',
+      '#attributes' => [
+        'class' => [
+          'cd-button',
+        ],
+      ],
+      '#weight' => 100,
+    ];
+  }
+
+  if ($entity->hasField('field_ai_feedback') && $active != 'summarized') {
+    unset($build['field_ai_feedback']);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view_action_points_compare(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
+  if ($entity->bundle() !== 'action_points') {
+    return;
+  }
+
+  if ($entity->isPublished()) {
+    return;
+  }
+
+  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
+  if (!$content_moderation_state) {
+    $active = 'document_uploaded';
+  }
+  else {
+    $active = $content_moderation_state->get('moderation_state')->value;
+  }
+
+  if ($active == 'action_points_created' && ocha_ai_summarize_file_is_shared($entity)) {
+    $build['compare'] = [
+      '#type' => 'link',
+      '#title' => t('Compare with other AI models'),
+      '#url' => Url::fromRoute('ocha_ai_summarize.compare.summary', [
+        'id' => $entity->id(),
+      ]),
+      '#prefix' => '<div class="node--compare-link">',
+      '#suffix' => '</div>',
+      '#attributes' => [
+        'class' => [
+          'cd-button',
+        ],
+      ],
+      '#weight' => 100,
+    ];
+  }
+
+  if ($entity->hasField('field_ai_feedback') && $active != 'action_points_created') {
+    unset($build['field_ai_feedback']);
   }
 }
 
@@ -476,28 +573,6 @@ function ocha_ai_summarize_node_view_summary(array &$build, EntityInterface $ent
     '#items' => array_values($states),
     '#weight' => -100,
   ];
-
-  if ($active == 'summarized' && ocha_ai_summarize_file_is_shared($entity)) {
-    $build['compare'] = [
-      '#type' => 'link',
-      '#title' => t('Compare summaries'),
-      '#url' => Url::fromRoute('ocha_ai_summarize.compare.summary', [
-        'id' => $entity->id(),
-      ]),
-      '#prefix' => '<div class="node--compare-link">',
-      '#suffix' => '</div>',
-      '#attributes' => [
-        'class' => [
-          'cd-button',
-        ],
-      ],
-      '#weight' => 100,
-    ];
-  }
-
-  if ($entity->hasField('field_ai_feedback') && $active != 'summarized') {
-    unset($build['field_ai_feedback']);
-  }
 }
 
 /**
@@ -581,28 +656,6 @@ function ocha_ai_summarize_node_view_action_points(array &$build, EntityInterfac
     '#items' => array_values($states),
     '#weight' => -100,
   ];
-
-  if ($active == 'action_points_created' && ocha_ai_summarize_file_is_shared($entity)) {
-    $build['compare'] = [
-      '#type' => 'link',
-      '#title' => t('Compare action points'),
-      '#url' => Url::fromRoute('ocha_ai_summarize.compare.action_points', [
-        'id' => $entity->id(),
-      ]),
-      '#prefix' => '<div class="node--compare-link">',
-      '#suffix' => '</div>',
-      '#attributes' => [
-        'class' => [
-          'cd-button',
-        ],
-      ],
-      '#weight' => 100,
-    ];
-  }
-
-  if ($entity->hasField('field_ai_feedback') && $active != 'action_points_created') {
-    unset($build['field_ai_feedback']);
-  }
 }
 
 /**
@@ -1319,4 +1372,60 @@ function ocha_ai_summarize_get_entity_document(EntityInterface $entity) {
     return NULL;
   }
   return $file->getFilename();
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function ocha_ai_summarize_user_presave(UserInterface $user) {
+  if ($user->isNew()) {
+    $parts = explode('@', $user->getInitialEmail());
+    if ($parts[1] != 'un.org') {
+      return;
+    }
+
+    $user->setUsername($user->getInitialEmail());
+    $user->activate();
+    $user->addRole('document_analyzer');
+
+    \Drupal::messenger()->deleteAll();
+    \Drupal::messenger()->addMessage(t('Your account has been automatically approved, you can now log in.'));
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function ocha_ai_summarize_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'notify_user':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['message'];
+      break;
+  }
+
+}
+
+/**
+ * Send email when processing is done.
+ */
+function ocha_ai_summarize_notify_user(NodeInterface $node) {
+  /** @var \Drupal\Core\Mail\MailManagerInterface $mail_manager */
+  $mail_manager = \Drupal::service('plugin.manager.mail');
+  $module = 'ocha_ai_summarize';
+  $key = 'notify_user';
+  $to = $node->getOwner()->getInitialEmail();
+  $langcode = $node->getOwner()->getPreferredLangcode();
+
+  $params['subject'] = t('AI Summarize: your document has been processed.');
+  $params['message'] = implode("\r\n\r\n", [
+    t('Dear'),
+    t('Your document has been processed.'),
+    t('You can see the result on @link', [
+      '@link' => $node->toUrl('absolute')->toString(),
+    ]),
+  ]);
+
+  $mail_manager->mail($module, $key, $to, $langcode, $params);
 }

@@ -186,6 +186,8 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
     ]);
     $node->set('moderation_state', 'action_points_created');
     $node->save();
+
+    ocha_ai_summarize_notify_user($node);
   }
 
   /**

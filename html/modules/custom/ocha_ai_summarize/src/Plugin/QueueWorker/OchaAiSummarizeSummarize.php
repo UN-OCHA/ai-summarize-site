@@ -183,6 +183,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     $node->set('field_summary', $summary);
     $node->set('moderation_state', 'summarized');
     $node->save();
+
+    ocha_ai_summarize_notify_user($node);
   }
 
   /**
