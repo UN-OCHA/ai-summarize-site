@@ -1,0 +1,6 @@
+services:
+  ocha_ai_summarize.event_subscriber:
+    class: Drupal\ocha_ai_summarize\EventSubscriber\AnonymousFrontpageSubscriber
+    arguments: ['@messenger','@current_user','@path.matcher', '@config.factory', '@state']
+    tags:
+      - { name: event_subscriber }

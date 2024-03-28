@@ -269,7 +269,7 @@ display:
           plugin_id: text_custom
           label: ''
           empty: true
-          content: "<p>Welcome to OCHA’s internal AI-based document summarization tool. This proof-of-concept is only available to OCHA personnel.</p>\r\n\r\n<p class=\"button-login\"><a href=\"/user/login/hid\">Log in</a></p>"
+          content: "<p>Welcome to OCHA’s internal AI-based document summarization tool.</p>\r\n\r\n<p class=\"button-login\"><a href=\"/node/add\">Add your first document.</a></p>"
           tokenize: false
         title:
           id: title
