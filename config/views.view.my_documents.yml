@@ -449,7 +449,7 @@ display:
           plugin_id: text
           empty: false
           content:
-            value: 'Welcome to OCHA’s private AI-based document summarization tool. You can upload documents written in any of the 6 UN languages and receive output in any of those languages. Being a proof-of-concept is powered by AI, <strong>please check for mistakes</strong>.'
+            value: 'Welcome to OCHA’s private AI-based document summarization tool. You can upload documents written in any of the 6 UN languages and receive output in any of those languages. Since this is a proof-of-concept that is powered by AI, <strong>please check for mistakes</strong>.'
             format: text_editor_simple
           tokenize: false
       footer: {  }
