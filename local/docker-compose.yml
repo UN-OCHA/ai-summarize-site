@@ -1,0 +1,82 @@
+version: "2.2"
+name: ai-summarize-local
+
+networks:
+  default:
+  proxy:
+    name: ${PROXY:-proxy}
+    external: true
+
+volumes:
+  ai-summarize-local-site-database:
+  ai-summarize-local-site-public:
+  ai-summarize-local-site-private:
+
+services:
+  mysql:
+    image: public.ecr.aws/unocha/mysql:10.11
+    hostname: ai-summarize-local-mysql
+    container_name: ai-summarize-local-mysql
+    environment:
+      - MYSQL_DB=ai-summarize
+      - MYSQL_USER=ai-summarize
+      - MYSQL_PASS=ai-summarize
+    volumes:
+      - "ai-summarize-local-site-database:/var/lib/mysql:rw"
+    networks:
+      - default
+
+  drupal:
+    image: public.ecr.aws/unocha/ai-summarize-site:local
+    hostname: ai-summarize-local-site
+    container_name: ai-summarize-local-site
+    depends_on:
+      - mysql
+    volumes:
+      - "./shared/settings:/srv/www/shared/settings:ro"
+      # Mount composer files.
+      - "../composer.json:/srv/www/composer.json:rw"
+      - "../composer.lock:/srv/www/composer.lock:rw"
+      - "../composer.patches.json:/srv/www/composer.patches.json:rw"
+      - "../scripts:/srv/www/scripts:ro"
+      # Mount a database directory for import.
+      - "../database:/srv/www/database:rw"
+      # Mount volumes for the private and public files.
+      - "ai-summarize-local-site-public:/srv/www/html/sites/default/files:rw"
+      - "ai-summarize-local-site-private:/srv/www/html/sites/default/private:rw"
+      # Mount the folders needed for the tests.
+      - "../phpcs.xml:/srv/www/phpcs.xml:ro"
+      - "../phpunit.xml:/srv/www/phpunit.xml:ro"
+      # Mount local custom code.
+      - "../html/modules/custom:/srv/www/html/modules/custom:rw"
+      - "../html/themes/custom:/srv/www/html/themes/custom:rw"
+      # Mount configuration and allow overriding it.
+      - "../config:/srv/www/config:rw"
+      - "../config_dev:/srv/www/config_dev:rw"
+    environment:
+      - TERM=xterm
+      - ENVIRONMENT=dev
+      - NGINX_SERVERNAME=ai-summarize-local.test
+      - NGINX_OVERRIDE_PROTOCOL=HTTP,ai-summarize-local.test
+      - DRUSH_OPTIONS_URI=https://ai-summarize-local.test
+      - DRUPAL_DB_DATABASE=ai-summarize
+      - DRUPAL_DB_USERNAME=ai-summarize
+      - DRUPAL_DB_PASSWORD=ai-summarize
+      - DRUPAL_DB_HOST=mysql
+      - DRUPAL_DB_DRIVER=mysql
+      - PHP_ENVIRONMENT=dev
+      - PHP_XDEBUG=true
+      # Rate limiting.
+      - NGINX_LIMIT_HUMANS=1024r/s
+      - NGINX_BURST_HUMANS=1024
+      # Local proxy.
+      - VIRTUAL_HOST=ai-summarize-local.test
+      - VIRTUAL_PORT=80
+      - VIRTUAL_NETWORK=${PROXY:-proxy}
+      - HTTPS_METHOD=noredirect
+    labels:
+      caddy: ai-summarize-local.test
+      caddy.reverse_proxy: "{{upstreams}}"
+    networks:
+      - default
+      - proxy
