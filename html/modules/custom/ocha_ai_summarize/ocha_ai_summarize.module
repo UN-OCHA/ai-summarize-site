@@ -1400,7 +1400,7 @@ function ocha_ai_summarize_user_insert(UserInterface $user) {
   }
 
   \Drupal::messenger()->deleteAll();
-  \Drupal::messenger()->addMessage(t('Your account has been automatically approved, you can now log in.'));
+  \Drupal::messenger()->addMessage(t('Your account has been automatically approved.'));
 }
 
 /**
