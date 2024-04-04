@@ -8,7 +8,7 @@ make
 
 # Create the site, memcache and mysql containers.
 echo "Create the site, memcache and mysql containers."
-docker-compose -p ai-summarize-test -f tests/docker-compose.yml up -d
+docker compose -p ai-summarize-test -f tests/docker-compose.yml up -d
 
 # Dump some information about the created containers.
 echo "Dump some information about the created containers."
@@ -51,4 +51,4 @@ docker exec -it -u root -w /srv/www -e XDEBUG_MODE=coverage -e BROWSERTEST_OUTPU
 
 # Remove the image.
 echo "Remove the test image"
-docker-compose -p ai-summarize-test -f tests/docker-compose.yml down -v
+docker compose -p ai-summarize-test -f tests/docker-compose.yml down -v
