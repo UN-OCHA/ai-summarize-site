@@ -1433,7 +1433,7 @@ function ocha_ai_summarize_notify_user(NodeInterface $node) {
     t('Dear'),
     t('Your document has been processed.'),
     t('You can see the result on @link', [
-      '@link' => $node->toUrl('absolute')->setAbsolute()->toString(),
+      '@link' => $node->toUrl()->setAbsolute()->toString(),
     ]),
   ]);
 
