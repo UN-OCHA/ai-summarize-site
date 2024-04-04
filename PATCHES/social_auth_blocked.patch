@@ -1,0 +1,13 @@
+diff --git a/src/User/UserAuthenticator.php b/src/User/UserAuthenticator.php
+index 868e033..089ddef 100644
+--- a/src/User/UserAuthenticator.php
++++ b/src/User/UserAuthenticator.php
+@@ -305,7 +305,7 @@ public function authenticateNewUser(UserInterface $drupal_user = NULL) {
+     if ($drupal_user) {
+ 
+       // If the account needs admin approval.
+-      if ($this->isApprovalRequired()) {
++      if ($this->isApprovalRequired() && $drupal_user->isBlocked()) {
+         $this->messenger->addWarning($this->t("Your account was created, but it needs administrator's approval."));
+         $this->nullifySessionKeys();
+ 
