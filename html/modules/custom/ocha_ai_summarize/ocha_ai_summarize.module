@@ -1415,7 +1415,7 @@ function ocha_ai_summarize_notify_user(NodeInterface $node) {
   $mail_manager = \Drupal::service('plugin.manager.mail');
   $module = 'ocha_ai_summarize';
   $key = 'notify_user';
-  $to = $node->getOwner()->getInitialEmail();
+  $to = $node->getOwner()->getEmail();
   $langcode = $node->getOwner()->getPreferredLangcode();
 
   $params['subject'] = t('AI Summarize: your document has been processed.');
@@ -1423,7 +1423,7 @@ function ocha_ai_summarize_notify_user(NodeInterface $node) {
     t('Dear'),
     t('Your document has been processed.'),
     t('You can see the result on @link', [
-      '@link' => $node->toUrl('absolute')->toString(),
+      '@link' => $node->toUrl('absolute')->setAbsolute()->toString(),
     ]),
   ]);
 
