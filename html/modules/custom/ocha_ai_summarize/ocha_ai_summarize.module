@@ -396,14 +396,62 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
   /** @var \Drupal\node\Entity\Node $entity */
   switch ($entity->bundle()) {
     case 'summary':
+      ocha_ai_summarize_node_view_moderation_state($build, $entity, $display, $view_mode);
       ocha_ai_summarize_node_view_compare($build, $entity, $display, $view_mode);
       break;
 
     case 'action_points':
+      ocha_ai_summarize_node_view_moderation_state($build, $entity, $display, $view_mode);
       ocha_ai_summarize_node_view_action_points_compare($build, $entity, $display, $view_mode);
       break;
 
   }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view_moderation_state(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
+  if ($entity->bundle() !== 'summary' && $entity->bundle() !== 'action_points') {
+    return;
+  }
+
+  if ($entity->isPublished()) {
+    return;
+  }
+
+  $content_moderation_state = ContentModerationState::loadFromModeratedEntity($entity);
+  if (!$content_moderation_state) {
+    $state = 'document_uploaded';
+  }
+  else {
+    $state = $content_moderation_state->get('moderation_state')->value;
+  }
+
+  // Do not display when in final state.
+  if ($state == 'summarized' || $state == 'action_points_created') {
+    return;
+  }
+
+  /** @var \Drupal\content_moderation\ModerationInformation $moderation_information_service */
+  $moderation_information_service = \Drupal::service('content_moderation.moderation_information');
+  $workflow = $moderation_information_service->getWorkflowForEntity($entity);
+  $label = $workflow->getTypePlugin()->getState($state)->label();
+
+  $build['moderation_state'] = [
+    '#type' => 'markup',
+    '#markup' => $label,
+    '#prefix' => '<div class="field--label-inline moderation-state-label"><div class="field__label">' . t('Status') . '</div><div class="field__item">',
+    '#suffix' => '</div></div>',
+    '#attributes' => [
+      'class' => [
+        'cd-button',
+      ],
+    ],
+    '#weight' => -100,
+  ];
+
 }
 
 /**
