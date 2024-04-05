@@ -118,7 +118,6 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
       }
 
       $text = ocha_ai_summarize_check_length($text, $bot);
-
       $action_points = $this->sendToClaudeAi("$prompt:\n\n" . $text);
     }
     else {
@@ -217,15 +216,13 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
   protected function sendToAzureAi($text) : string {
     $result = ocha_ai_summarize_http_call_azure(
       [
-        'messages' => [
-          [
-            'role' => 'system',
-            'content' => $this->t('You are an AI assistant that extracts action points out of meeting minutes.'),
-          ],
-          [
-            'role' => 'user',
-            'content' => $text,
-          ],
+        [
+          'role' => 'system',
+          'content' => $this->t('You are an AI assistant that extracts action points out of meeting minutes.'),
+        ],
+        [
+          'role' => 'user',
+          'content' => $text,
         ],
       ],
     );
