@@ -67,3 +67,11 @@ ol.workflow-steps > li.to-do {
 .comment-form-feedback {
   margin-top: 2rem;
 }
+
+.field--label-inline .field__label {
+  padding-right: .3rem;
+}
+
+.field--label-inline .field__label:after {
+  content: ':';
+}
