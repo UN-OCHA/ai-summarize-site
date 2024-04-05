@@ -438,6 +438,9 @@ function ocha_ai_summarize_node_view_moderation_state(array &$build, EntityInter
   $moderation_information_service = \Drupal::service('content_moderation.moderation_information');
   $workflow = $moderation_information_service->getWorkflowForEntity($entity);
   $label = $workflow->getTypePlugin()->getState($state)->label();
+  $label = t('@label (Your document will be ready in 10-15 minutes.)', [
+    '@label' => $label,
+  ]);
 
   $build['moderation_state'] = [
     '#type' => 'markup',

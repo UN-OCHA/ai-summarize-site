@@ -27,7 +27,7 @@ type_settings:
       published: false
       default_revision: false
     extract_text:
-      label: 'Extract text'
+      label: 'Extracting text'
       weight: -2
       published: false
       default_revision: false
@@ -37,7 +37,7 @@ type_settings:
       published: true
       default_revision: true
     summarize:
-      label: Summarize
+      label: Summarizing
       weight: 0
       published: false
       default_revision: false
