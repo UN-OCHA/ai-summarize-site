@@ -35,6 +35,8 @@ use Symfony\Component\Process\Process;
 function ocha_ai_summarize_node_insert(EntityInterface $entity) {
   ocha_ai_summarize_node_update($entity);
 
+  \Drupal::messenger()->addMessage(t("Your document has been queued for processing and will be ready in 10 to 15 minutes, you'll receive an email when it's ready."));
+
   // Auto create other nodes?
   /** @var \Drupal\node\Entity\Node $entity */
   if (!$entity->hasField('field_auto_create')) {
