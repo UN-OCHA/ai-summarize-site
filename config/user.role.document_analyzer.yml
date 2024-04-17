@@ -41,7 +41,5 @@ permissions:
   - 'use summarize transition summarize'
   - 'use summarize transition summarized_update'
   - 'use summarize transition text_extracted_update'
-  - 'view action_points revisions'
   - 'view own summary content'
   - 'view own unpublished content'
-  - 'view summary revisions'

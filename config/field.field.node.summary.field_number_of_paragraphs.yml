@@ -11,7 +11,7 @@ id: node.summary.field_number_of_paragraphs
 field_name: field_number_of_paragraphs
 entity_type: node
 bundle: summary
-label: 'Number of paragraphs'
+label: 'Approximate number of paragraphs'
 description: ''
 required: true
 translatable: false
