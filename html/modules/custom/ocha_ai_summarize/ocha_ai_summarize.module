@@ -1359,6 +1359,7 @@ function ocha_ai_summarize_get_lang_name($code) {
 function ocha_ai_summarize_get_lang_code($code) {
   $lang_codes = [
     'Arabic' => 'ar',
+    'ara' => 'ar',
     'chi_sim' => 'zh-hans',
     'eng' => 'en',
     'fra' => 'fr',

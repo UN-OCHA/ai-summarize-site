@@ -57,7 +57,14 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
     $nid = $data->nid;
     $num_paragraphs = $data->num_paragraphs;
     $document_language = $data->language ?? 'eng';
+    if ($document_language == 'Arabic') {
+      $document_language = 'ara';
+    }
+
     $output_language = $data->output_language ?? 'eng';
+    if ($output_language == 'Arabic') {
+      $output_language = 'ara';
+    }
 
     if (empty($nid)) {
       return;

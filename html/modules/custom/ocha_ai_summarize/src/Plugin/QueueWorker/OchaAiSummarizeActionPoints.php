@@ -56,7 +56,14 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
     $bot = $data->brain ?? 'openai';
     $nid = $data->nid;
     $document_language = $data->language ?? 'eng';
+    if ($document_language == 'Arabic') {
+      $document_language = 'ara';
+    }
+
     $output_language = $data->output_language ?? 'eng';
+    if ($output_language == 'Arabic') {
+      $output_language = 'ara';
+    }
 
     if (empty($nid)) {
       return;

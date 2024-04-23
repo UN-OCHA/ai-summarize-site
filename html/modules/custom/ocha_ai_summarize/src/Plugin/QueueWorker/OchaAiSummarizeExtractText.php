@@ -62,6 +62,9 @@ class OchaAiSummarizeExtractText extends QueueWorkerBase implements ContainerFac
   public function processItem($data) {
     $nid = $data->nid;
     $document_language = $data->language ?? 'eng';
+    if ($document_language == 'Arabic') {
+      $document_language = 'ara';
+    }
 
     if (empty($nid)) {
       return;
