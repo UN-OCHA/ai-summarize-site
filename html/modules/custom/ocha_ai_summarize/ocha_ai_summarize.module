@@ -1288,7 +1288,7 @@ function ocha_ai_summarize_check_length($text, $bot) {
       break;
 
     case 'bedrock':
-      $max_tokens = 3.5 * 42000;
+      $max_tokens = 2 * 42000;
       break;
   }
 
