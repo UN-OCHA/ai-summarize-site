@@ -25,6 +25,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use OpenAI\Client;
+use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\IOFactory;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Process\Process;
@@ -799,7 +800,16 @@ function ocha_ai_summarize_extract_pages_from_doc($filename, $document_language 
         }
       }
       elseif (method_exists($element, 'getText')) {
-        $text .= $element->getText() . "\n";
+        $t = $element->getText();
+        if (is_string($t)) {
+          $text .= $element->getText() . "\n";
+        }
+        elseif ($t instanceof TextRun) {
+          $text .= $t->getText() . "\n";
+        }
+        else {
+          // Ignore it.
+        }
       }
     }
 
