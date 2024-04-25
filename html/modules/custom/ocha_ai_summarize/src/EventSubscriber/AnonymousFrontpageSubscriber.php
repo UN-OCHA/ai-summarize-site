@@ -73,7 +73,7 @@ class AnonymousFrontpageSubscriber implements EventSubscriberInterface {
     AccountProxyInterface $currentUser,
     PathMatcherInterface $pathMatcher,
     ConfigFactoryInterface $configFactory,
-    State $state
+    State $state,
   ) {
     $this->messenger = $messenger;
     $this->currentUser = $currentUser;
