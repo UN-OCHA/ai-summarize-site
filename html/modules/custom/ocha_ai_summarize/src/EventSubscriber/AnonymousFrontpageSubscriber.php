@@ -68,11 +68,13 @@ class AnonymousFrontpageSubscriber implements EventSubscriberInterface {
    * @param \Drupal\Core\State\State $state
    *   The state service.
    */
-  public function __construct(MessengerInterface $messenger,
-                              AccountProxyInterface $currentUser,
-                              PathMatcherInterface $pathMatcher,
-                              ConfigFactoryInterface $configFactory,
-                              State $state) {
+  public function __construct(
+    MessengerInterface $messenger,
+    AccountProxyInterface $currentUser,
+    PathMatcherInterface $pathMatcher,
+    ConfigFactoryInterface $configFactory,
+    State $state
+  ) {
     $this->messenger = $messenger;
     $this->currentUser = $currentUser;
     $this->pathMatcher = $pathMatcher;
