@@ -44,7 +44,6 @@ settings:
     file: file
     file_mdm: file_mdm
     filter: filter
-    google_tag: google_tag
     image: image
     imageapi_optimize: imageapi_optimize
     imageapi_optimize_binaries: imageapi_optimize_binaries

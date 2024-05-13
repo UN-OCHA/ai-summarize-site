@@ -204,7 +204,6 @@
             "constraint": "^10",
             "allowed-list": [
                 "drupal/admin_denied",
-                "drupal/google_tag",
                 "drupal/imageapi_optimize",
                 "drupal/imageapi_optimize_binaries"
             ]
