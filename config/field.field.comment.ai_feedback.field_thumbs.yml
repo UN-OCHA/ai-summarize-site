@@ -1,0 +1,21 @@
+uuid: 9b2f5370-a881-4beb-ad4f-3423b9770471
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.ai_feedback
+    - field.storage.comment.field_thumbs
+  module:
+    - options
+id: comment.ai_feedback.field_thumbs
+field_name: field_thumbs
+entity_type: comment
+bundle: ai_feedback
+label: Thumbs
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

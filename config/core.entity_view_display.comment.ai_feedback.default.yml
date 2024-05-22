@@ -6,6 +6,7 @@ dependencies:
     - comment.type.ai_feedback
     - field.field.comment.ai_feedback.comment_body
     - field.field.comment.ai_feedback.field_rating
+    - field.field.comment.ai_feedback.field_thumbs
   module:
     - options
     - text
@@ -19,9 +20,16 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 1
+    weight: 2
     region: content
   field_rating:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_thumbs:
     type: list_default
     label: inline
     settings: {  }

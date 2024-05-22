@@ -249,6 +249,14 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
   // Hide revision widget.
   $form['revision_log']['#access'] = FALSE;
 
+  // Remove old Arabic.
+  if (isset($form['field_document_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_document_language']['widget']['#options']['Arabic']);
+  }
+  if (isset($form['field_output_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_output_language']['widget']['#options']['Arabic']);
+  }
+
   if ($form_id === 'node_summary_form') {
     // Remove OpenAi.
     if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
@@ -335,6 +343,14 @@ function ocha_ai_summarize_form_node_action_points_edit_form_alter(&$form, FormS
 function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Hide revision widget.
   $form['revision_log']['#access'] = FALSE;
+
+  // Remove old Arabic.
+  if (isset($form['field_document_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_document_language']['widget']['#options']['Arabic']);
+  }
+  if (isset($form['field_output_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_output_language']['widget']['#options']['Arabic']);
+  }
 
   if ($form_id === 'node_action_points_form') {
     // Remove OpenAi.

@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Theme override for a 'form' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - children: The child elements of the form.
+ *
+ * @see template_preprocess_form()
+ */
+#}
+{{ attach_library('common_design/cd-form') }}
+{{ attach_library('common_design/cd-button') }}
+<form{{ attributes.addClass('cd-form [ cd-flow ] ai-summarize--feedback') }}>
+  {{ element.form_build_id }}
+  {{ element.form_token }}
+  {{ element.form_id }}
+  {{ element.field_thumbs }}
+  {{ element.author }}
+  <div class="ai-summarize--feedback-detailed">
+    {{ element.field_rating }}
+    {{ element.comment_body }}
+    {{ element.footer }}
+    {{ element.actions }}
+  </div>
+</form>
+
+
