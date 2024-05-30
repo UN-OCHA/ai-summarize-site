@@ -52,6 +52,7 @@
         "drupal/private_content": "^2.0",
         "drupal/queue_ui": "^3.1",
         "drupal/redirect": "^1.8",
+        "drupal/seckit": "^2.0",
         "drupal/social_auth_hid": "^3.2",
         "drupal/stable": "^2.0",
         "drupal/user_display_name": "^1.1",
