@@ -40,3 +40,10 @@ cds-header:
 #   css:
 #     theme:
 #       css/fonts-arabic.css: {}
+
+feedback-copy:
+  css:
+    theme:
+      components/copy/copy.css: {}
+  js:
+    components/copy/copy.js: {}

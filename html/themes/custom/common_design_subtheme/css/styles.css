@@ -133,3 +133,8 @@ ol.workflow-steps > li.to-do {
 .ai-summarize--feedback label[for="edit-field-thumbs-down"]::before {
   background-image: url('../img/thumbs-down.svg');
 }
+
+.ai-summarize--feedback--buttons {
+  display: flex;
+  justify-content: space-between;
+}
