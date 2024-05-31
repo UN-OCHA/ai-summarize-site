@@ -24,3 +24,27 @@ ocha_ai_summarize.my_documents:
     arg_0: ''
   requirements:
     _user_is_logged_in: 'TRUE'
+ocha_ai_summarize.stats:
+  path: '/admin/ai-summarize/statistics'
+  defaults:
+    _controller: '\Drupal\ocha_ai_summarize\Controller\OchaAiSummarizeStats::getPage'
+    _title: 'Ai Summarize statistics'
+  requirements:
+    _permission: 'ocha_ai_summarize stats'
+ocha_ai_summarize.stats_csv:
+  path: '/admin/ai-summarize/statistics-csv'
+  defaults:
+    _controller: '\Drupal\ocha_ai_summarize\Controller\OchaAiSummarizeStats::getCsv'
+    _title: 'Ai Summarize statistics'
+  requirements:
+    _permission: 'ocha_ai_summarize stats'
+ocha_ai_summarize.weekly_stats:
+  path: '/ai-summarize/weekly-statistics'
+  defaults:
+    _controller: '\Drupal\ocha_ai_summarize\Controller\OchaAiSummarizeWeeklyStats::weeklyStats'
+    _title: 'Ai Summarize weekly statistics'
+  options:
+    no_cache: TRUE
+  requirements:
+    _ocha_ai_summarize_weekly_stats: 'TRUE'
+    _format: 'json'

@@ -2,6 +2,7 @@
 
 namespace Drupal\ocha_ai_summarize\Plugin\QueueWorker;
 
+use Drupal\Component\Utility\Timer;
 use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -125,10 +126,14 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
       }
 
       $text = ocha_ai_summarize_check_length($text, $bot);
+      Timer::start('action_points');
       $action_points = $this->sendToClaudeAi("$prompt:\n\n" . $text);
+      ocha_ai_summarize_log_time_action_points($nid, Timer::read('action_points'));
+      Timer::stop('action_points');
     }
     else {
       // Summarize each page.
+      Timer::start('summarize');
       $results = [];
       foreach ($node->field_document_text as $document_text) {
         $text = $document_text->value;
@@ -161,6 +166,8 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
 
         }
       }
+      ocha_ai_summarize_log_time_summarize($nid, Timer::read('summarize'));
+      Timer::stop('summarize');
 
       // Get the action points.
       $text = '';
@@ -171,6 +178,7 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
 
       $text = ocha_ai_summarize_check_length($text, $bot);
 
+      Timer::start('action_points');
       switch ($bot) {
         case 'openai':
           $action_points = $this->sendToOpenAi("$prompt:\n\n" . $text);
@@ -184,6 +192,8 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
           $action_points = $this->sendToBedRock("$prompt:\n\n" . $text);
           break;
       }
+      ocha_ai_summarize_log_time_action_points($nid, Timer::read('action_points'));
+      Timer::stop('action_points');
     }
 
     $node->set('field_action_points', [
