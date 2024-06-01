@@ -1636,7 +1636,8 @@ function ocha_ai_summarize_get_weekly_stats() {
       AVG(r.field_rating_value) as rating
     FROM node_field_data AS n
       INNER JOIN content_moderation_state_field_data AS m ON n.nid = m.content_entity_id
-      LEFT JOIN comment__field_rating AS r ON n.nid = r.entity_id
+      LEFT JOIN node__field_ai_feedback c ON n.nid = c.entity_id
+      LEFT JOIN comment__field_rating AS r ON c.field_ai_feedback_status = r.entity_id
     WHERE n.type IN ('action_points', 'summary')
       AND n.created >= UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) + 6 DAY))
       AND n.created < UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) - 1 DAY))
