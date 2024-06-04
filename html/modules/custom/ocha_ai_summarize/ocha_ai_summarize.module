@@ -1613,15 +1613,35 @@ function ocha_ai_summarize_get_weekly_stats() {
       'created' => 0,
       'completed' => 0,
       'score' => 0,
+      'thumbs' => [
+        'down' => 0,
+        'neutral' => 0,
+        'up' => 0,
+      ],
+      'timings' => [],
     ],
     'action_points' => [
       'created' => 0,
       'completed' => 0,
       'score' => 0,
+      'thumbs' => [
+        'down' => 0,
+        'neutral' => 0,
+        'up' => 0,
+      ],
+      'timings' => [],
     ],
   ];
 
   $average = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_created = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_completed = [
     'summary' => [],
     'action_points' => [],
   ];
@@ -1631,17 +1651,19 @@ function ocha_ai_summarize_get_weekly_stats() {
   $records = $connection->query("
     SELECT
       n.nid,
+      n.uid,
       n.type,
       m.moderation_state,
-      AVG(r.field_rating_value) as rating
+      r.field_rating_value as rating,
+      t.field_thumbs_value as thumbs
     FROM node_field_data AS n
       INNER JOIN content_moderation_state_field_data AS m ON n.nid = m.content_entity_id
-      LEFT JOIN node__field_ai_feedback c ON n.nid = c.entity_id
-      LEFT JOIN comment__field_rating AS r ON c.field_ai_feedback_status = r.entity_id
+      LEFT JOIN comment_field_data c ON n.nid = c.entity_id AND c.entity_type = 'node'
+      LEFT JOIN comment__field_rating AS r ON c.cid = r.entity_id
+      LEFT JOIN comment__field_thumbs AS t ON c.cid = t.entity_id
     WHERE n.type IN ('action_points', 'summary')
       AND n.created >= UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) + 6 DAY))
       AND n.created < UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) - 1 DAY))
-    GROUP BY n.nid, n.type, m.moderation_state
     ORDER BY n.nid
   ")->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -1650,25 +1672,66 @@ function ocha_ai_summarize_get_weekly_stats() {
   }
 
   foreach ($records as $record) {
-    $data['total']++;
-    $data[$record['type']]['created']++;
+    $docs_created[$record['type']][] = $record['nid'];
+
     if (!empty($record['rating'])) {
       $average[$record['type']][] = $record['rating'];
+    }
+
+    if (!empty($record['thumbs'])) {
+      $data[$record['type']]['thumbs'][$record['thumbs']]++;
     }
 
     switch ($record['moderation_state']) {
       case 'summarized':
       case 'action_points_created':
-        $data[$record['type']]['completed']++;
-
+        $docs_completed[$record['type']][] = $record['nid'];
     }
   }
+
+  $docs_created['summary'] = array_unique($docs_created['summary']);
+  $docs_created['action_points'] = array_unique($docs_created['action_points']);
+  $docs_completed['summary'] = array_unique($docs_completed['summary']);
+  $docs_completed['action_points'] = array_unique($docs_completed['action_points']);
+
+  $data['total'] = count($docs_created['summary']) + count($docs_created['action_points']);
+  $data['summary']['created'] = count($docs_created['summary']);
+  $data['summary']['completed'] = count($docs_completed['summary']);
+  $data['action_points']['created'] = count($docs_created['action_points']);
+  $data['action_points']['completed'] = count($docs_completed['action_points']);
 
   if (count($average['summary'])) {
     $data['summary']['score'] = array_sum($average['summary']) / count($average['summary']);
   }
   if (count($average['action_points'])) {
     $data['action_points']['score'] = array_sum($average['action_points']) / count($average['action_points']);
+  }
+
+  // Get average timings.
+  if (!empty($docs_created['summary'])) {
+    $records = $connection->query("
+      SELECT action, AVG(duration) AS duration
+      FROM ocha_ai_summarize_log_time
+      WHERE nid in (" . implode(',', $docs_created['summary']) . ")
+      GROUP BY action;
+    ")->fetchAll(\PDO::FETCH_ASSOC);
+
+    foreach ($records as $record) {
+      $data['summary']['timings'][$record['action']] = $record['duration'];
+    }
+  }
+
+  if (!empty($docs_created['action_points'])) {
+    $records = $connection->query("
+      SELECT action, AVG(duration) AS duration
+      FROM ocha_ai_summarize_log_time
+      WHERE nid in (" . implode(',', $docs_created['action_points']) . ")
+      GROUP BY action;
+    ")->fetchAll(\PDO::FETCH_ASSOC);
+
+    foreach ($records as $record) {
+      $data['action_points']['timings'][$record['action']] = $record['duration'];
+    }
   }
 
   return $data;
