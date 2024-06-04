@@ -83,6 +83,7 @@ ol.workflow-steps > li.to-do {
 .ai-summarize--feedback #edit-field-thumbs input[type="radio"] {
   position: absolute;
   opacity: 0;
+  z-index: -999;
 }
 
 .ai-summarize--feedback #edit-field-thumbs label {
