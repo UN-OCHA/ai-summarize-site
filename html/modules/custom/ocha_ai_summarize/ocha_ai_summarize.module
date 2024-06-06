@@ -1717,7 +1717,7 @@ function ocha_ai_summarize_get_weekly_stats() {
     ")->fetchAll(\PDO::FETCH_ASSOC);
 
     foreach ($records as $record) {
-      $data['summary']['timings'][$record['action']] = $record['duration'];
+      $data['summary']['timings'][$record['action']] = (int) $record['duration'];
     }
   }
 
@@ -1730,7 +1730,7 @@ function ocha_ai_summarize_get_weekly_stats() {
     ")->fetchAll(\PDO::FETCH_ASSOC);
 
     foreach ($records as $record) {
-      $data['action_points']['timings'][$record['action']] = $record['duration'];
+      $data['action_points']['timings'][$record['action']] = (int) $record['duration'];
     }
   }
 
