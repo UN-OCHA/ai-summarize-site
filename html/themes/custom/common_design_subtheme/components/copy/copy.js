@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  Drupal.behaviors.aiSummerizeCopy = {
+  Drupal.behaviors.aiSummarizeCopyAndThumbs = {
     attach: function (context, settings) {
       this.toggleFeedback(context);
       this.copyToClipboard(context);

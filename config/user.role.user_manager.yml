@@ -8,6 +8,7 @@ dependencies:
     - content_moderation
     - node
     - node_view_permissions
+    - ocha_ai_summarize
     - toolbar
 id: user_manager
 label: 'User manager'
@@ -18,6 +19,7 @@ permissions:
   - 'access user profiles'
   - 'administer users'
   - 'edit any summary content'
+  - 'ocha_ai_summarize stats'
   - 'view any action_points content'
   - 'view any summary content'
   - 'view any unpublished content'
