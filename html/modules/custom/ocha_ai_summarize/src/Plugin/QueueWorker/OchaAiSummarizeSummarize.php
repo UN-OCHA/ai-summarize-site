@@ -2,6 +2,7 @@
 
 namespace Drupal\ocha_ai_summarize\Plugin\QueueWorker;
 
+use Drupal\Component\Utility\Timer;
 use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -132,10 +133,15 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       }
 
       $text = ocha_ai_summarize_check_length($text, $bot);
+      Timer::start('summarize');
       $summary = $this->sendToClaudeAi($prompt . $text);
+      ocha_ai_summarize_log_time_summarize($nid, Timer::read('summarize'));
+      Timer::stop('summarize');
     }
     else {
       // Summarize each page.
+      Timer::start('summarize');
+
       $results = [];
       foreach ($node->field_document_text as $document_text) {
         $text = $document_text->value;
@@ -185,6 +191,8 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
           $summary = $this->sendToBedRock($prompt . $text);
           break;
       }
+      ocha_ai_summarize_log_time_summarize($nid, Timer::read('summarize'));
+      Timer::stop('summarize');
     }
 
     $node->set('field_summary', $summary);

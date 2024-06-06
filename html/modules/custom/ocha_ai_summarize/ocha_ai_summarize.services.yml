@@ -4,3 +4,8 @@ services:
     arguments: ['@messenger','@current_user','@path.matcher', '@config.factory', '@state']
     tags:
       - { name: event_subscriber }
+  ocha_ai_summarize.access_checker:
+    class: Drupal\ocha_ai_summarize\Access\OchaAiSummarizeAccess
+    arguments: ['@request_stack', '@config.factory']
+    tags:
+      - { name: access_check, applies_to: _ocha_ai_summarize_weekly_stats }

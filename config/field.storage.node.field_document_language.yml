@@ -15,6 +15,9 @@ settings:
       value: Arabic
       label: Arabic
     -
+      value: ara
+      label: Arabic
+    -
       value: chi_sim
       label: Chinese
     -

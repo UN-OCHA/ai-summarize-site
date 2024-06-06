@@ -75,3 +75,67 @@ ol.workflow-steps > li.to-do {
 .field--label-inline .field__label:after {
   content: ':';
 }
+
+.ai-summarize--feedback #edit-field-thumbs--wrapper > legend {
+  display: none;
+}
+
+.ai-summarize--feedback #edit-field-thumbs input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  z-index: -999;
+}
+
+.ai-summarize--feedback #edit-field-thumbs label {
+  width: 24px;
+  height: 20px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  color: transparent;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ai-summarize--feedback .form-type-radio:has(input[value="_none"]) {
+  display: none;
+}
+
+.ai-summarize--feedback .ai-summarize--feedback-detailed {
+  display: none;
+}
+
+.ai-summarize--feedback .field--name-field-thumbs:has(input:checked) ~ .ai-summarize--feedback-detailed {
+  display: block;
+}
+
+.ai-summarize--feedback #edit-field-thumbs label[for="edit-field-thumbs-neutral"] {
+  color: inherit;
+  width: auto;
+  height: auto;
+}
+
+.ai-summarize--feedback label[for="edit-field-thumbs-up"]::before,
+.ai-summarize--feedback label[for="edit-field-thumbs-down"]::before {
+  display: inline-block;
+  width: 24px;
+  height: 20px;
+  content: '';
+
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.ai-summarize--feedback label[for="edit-field-thumbs-up"]::before {
+  background-image: url('../img/thumbs-up.svg');
+}
+
+.ai-summarize--feedback label[for="edit-field-thumbs-down"]::before {
+  background-image: url('../img/thumbs-down.svg');
+}
+
+.ai-summarize--feedback--buttons {
+  display: flex;
+  justify-content: space-between;
+}
