@@ -38,7 +38,7 @@ class OchaAiSummarizeStats extends ControllerBase {
   }
 
   /**
-   * Returns sales report.
+   * Returns stats report.
    */
   public function getPage() {
     $headers = $this->getHeaders();
@@ -126,7 +126,7 @@ class OchaAiSummarizeStats extends ControllerBase {
         $simple ? $node->id() : $node->toLink($node->getTitle()),
         $node->bundle(),
         $state_label,
-        $ais[$current_ai],
+        $ais[$current_ai] ?? '',
         0,
         0,
         0,
