@@ -1607,31 +1607,40 @@ function ocha_ai_summarize_log_time_get($nid) : array {
  * Generate weekly AI tagging statistics.
  */
 function ocha_ai_summarize_get_weekly_stats() {
+  $types = [
+    'summary',
+    'action_points',
+  ];
+
   $data = [
-    'total' => 0,
-    'summary' => [
-      'created' => 0,
-      'completed' => 0,
-      'score' => 0,
-      'thumbs' => [
-        'down' => 0,
-        'neutral' => 0,
-        'up' => 0,
-      ],
-      'timings' => [],
-    ],
-    'action_points' => [
-      'created' => 0,
-      'completed' => 0,
-      'score' => 0,
-      'thumbs' => [
-        'down' => 0,
-        'neutral' => 0,
-        'up' => 0,
-      ],
-      'timings' => [],
+    'totals' => [
+      'documents' => 0,
+      'users' => 0,
     ],
   ];
+
+  foreach ($types as $type) {
+    $data[$type] = [
+      'created' => 0,
+      'completed' => 0,
+      'per_user' => 0,
+      'per_model' => [],
+      'input_lang' => [],
+      'output_lang' => [],
+      'translated' => 0,
+      'untranslated' => 0,
+      'one_summary' => 0,
+      'two_five_summaries' => 0,
+      'more_summaries' => 0,
+      'score' => 0,
+      'thumbs' => [
+        'down' => 0,
+        'neutral' => 0,
+        'up' => 0,
+      ],
+      'timings' => [],
+    ];
+  }
 
   $average = [
     'summary' => [],
@@ -1645,19 +1654,49 @@ function ocha_ai_summarize_get_weekly_stats() {
     'summary' => [],
     'action_points' => [],
   ];
+  $docs_user = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_model = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_input_lang = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_output_lang = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_translated = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_untranslated = [
+    'summary' => [],
+    'action_points' => [],
+  ];
 
   $connection = \Drupal::database();
 
-  $records = $connection->query("
+  $sql = "
     SELECT
       n.nid,
       n.uid,
       n.type,
+      b.field_ai_brain_value as brain,
+      i.field_document_language_value as input_lang,
+      o.field_output_language_value as output_lang,
       m.moderation_state,
       r.field_rating_value as rating,
       t.field_thumbs_value as thumbs
     FROM node_field_data AS n
       INNER JOIN content_moderation_state_field_data AS m ON n.nid = m.content_entity_id
+      LEFT JOIN node__field_ai_brain AS b ON n.nid = b.entity_id
+      LEFT JOIN node__field_document_language AS i ON n.nid = i.entity_id
+      LEFT JOIN node__field_output_language AS o ON n.nid = o.entity_id
       LEFT JOIN comment_field_data c ON n.nid = c.entity_id AND c.entity_type = 'node'
       LEFT JOIN comment__field_rating AS r ON c.cid = r.entity_id
       LEFT JOIN comment__field_thumbs AS t ON c.cid = t.entity_id
@@ -1665,14 +1704,36 @@ function ocha_ai_summarize_get_weekly_stats() {
       AND n.created >= UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) + 6 DAY))
       AND n.created < UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) - 1 DAY))
     ORDER BY n.nid
-  ")->fetchAll(\PDO::FETCH_ASSOC);
+  ";
+
+  $records = $connection->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
 
   if (empty($records)) {
     return $data;
   }
 
+  // Prepare data.
   foreach ($records as $record) {
     $docs_created[$record['type']][] = $record['nid'];
+    $docs_user[$record['type']][$record['uid']][] = $record['nid'];
+    $docs_model[$record['type']][$record['brain']][] = $record['nid'];
+    $docs_input_lang[$record['type']][$record['input_lang']][] = $record['nid'];
+    $docs_output_lang[$record['type']][$record['output_lang']][] = $record['nid'];
+
+    $docs_created[$record['type']] = array_unique($docs_created[$record['type']]);
+    $docs_user[$record['type']][$record['uid']] = array_unique($docs_user[$record['type']][$record['uid']]);
+    $docs_model[$record['type']][$record['brain']] = array_unique($docs_model[$record['type']][$record['brain']]);
+    $docs_input_lang[$record['type']][$record['input_lang']] = array_unique($docs_input_lang[$record['type']][$record['input_lang']]);
+    $docs_output_lang[$record['type']][$record['output_lang']] = array_unique($docs_output_lang[$record['type']][$record['output_lang']]);
+
+    if ($record['input_lang'] == $record['output_lang']) {
+      $docs_translated[$record['type']][] = $record['nid'];
+      $docs_translated[$record['type']] = array_unique($docs_translated[$record['type']]);
+    }
+    else {
+      $docs_untranslated[$record['type']][] = $record['nid'];
+      $docs_untranslated[$record['type']] = array_unique($docs_untranslated[$record['type']]);
+    }
 
     if (!empty($record['rating'])) {
       $average[$record['type']][] = $record['rating'];
@@ -1686,51 +1747,61 @@ function ocha_ai_summarize_get_weekly_stats() {
       case 'summarized':
       case 'action_points_created':
         $docs_completed[$record['type']][] = $record['nid'];
+        $docs_completed[$record['type']] = array_unique($docs_completed[$record['type']]);
+
     }
   }
 
-  $docs_created['summary'] = array_unique($docs_created['summary']);
-  $docs_created['action_points'] = array_unique($docs_created['action_points']);
-  $docs_completed['summary'] = array_unique($docs_completed['summary']);
-  $docs_completed['action_points'] = array_unique($docs_completed['action_points']);
+  // Totals.
+  $data['totals']['documents'] = count($docs_created['summary']) + count($docs_created['action_points']);
+  $data['totals']['users'] = count(array_unique(array_merge(array_keys($docs_user['summary']), array_keys($docs_user['action_points']))));
 
-  $data['total'] = count($docs_created['summary']) + count($docs_created['action_points']);
-  $data['summary']['created'] = count($docs_created['summary']);
-  $data['summary']['completed'] = count($docs_completed['summary']);
-  $data['action_points']['created'] = count($docs_created['action_points']);
-  $data['action_points']['completed'] = count($docs_completed['action_points']);
+  // Data per type.
+  foreach ($types as $type) {
+    $data[$type]['created'] = count($docs_created[$type]);
+    $data[$type]['completed'] = count($docs_completed[$type]);
+    if ($data[$type]['completed'] > 0) {
+      $data[$type]['per_user'] = count($docs_completed[$type]) / count(($docs_user[$type]));
+      foreach ($docs_model[$type] as $index => $docs) {
+        $data[$type]['per_model'][$index] = count($docs);
+      }
+      foreach ($docs_input_lang[$type] as $index => $docs) {
+        $data[$type]['input_lang'][$index] = count($docs);
+      }
+      foreach ($docs_output_lang[$type] as $index => $docs) {
+        $data[$type]['output_lang'][$index] = count($docs);
+      }
 
-  if (count($average['summary'])) {
-    $data['summary']['score'] = array_sum($average['summary']) / count($average['summary']);
-  }
-  if (count($average['action_points'])) {
-    $data['action_points']['score'] = array_sum($average['action_points']) / count($average['action_points']);
-  }
+      $data[$type]['translated'] = count($docs_translated[$type]);
+      $data[$type]['untranslated'] = count($docs_untranslated[$type]);
 
-  // Get average timings.
-  if (!empty($docs_created['summary'])) {
-    $records = $connection->query("
-      SELECT action, AVG(duration) AS duration
-      FROM ocha_ai_summarize_log_time
-      WHERE nid in (" . implode(',', $docs_created['summary']) . ")
-      GROUP BY action;
-    ")->fetchAll(\PDO::FETCH_ASSOC);
-
-    foreach ($records as $record) {
-      $data['summary']['timings'][$record['action']] = (int) $record['duration'];
+      $data[$type]['one_summary'] = count(array_filter($docs_user[$type], function ($a) {
+        return count($a) == 1;
+      }));
+      $data[$type]['two_five_summaries'] = count(array_filter($docs_user[$type], function ($a) {
+        return count($a) > 1 && count($a) < 5;
+      }));
+      $data[$type]['more_summaries'] = count(array_filter($docs_user[$type], function ($a) {
+        return count($a) > 5;
+      }));
     }
-  }
 
-  if (!empty($docs_created['action_points'])) {
-    $records = $connection->query("
-      SELECT action, AVG(duration) AS duration
-      FROM ocha_ai_summarize_log_time
-      WHERE nid in (" . implode(',', $docs_created['action_points']) . ")
-      GROUP BY action;
-    ")->fetchAll(\PDO::FETCH_ASSOC);
+    if (count($average[$type])) {
+      $data[$type]['score'] = array_sum($average[$type]) / count($average[$type]);
+    }
 
-    foreach ($records as $record) {
-      $data['action_points']['timings'][$record['action']] = (int) $record['duration'];
+    // Get average timings.
+    if (!empty($docs_created[$type])) {
+      $records = $connection->query("
+        SELECT action, AVG(duration) AS duration
+        FROM ocha_ai_summarize_log_time
+        WHERE nid in (" . implode(',', $docs_created[$type]) . ")
+        GROUP BY action;
+      ")->fetchAll(\PDO::FETCH_ASSOC);
+
+      foreach ($records as $record) {
+        $data[$type]['timings'][$record['action']] = (int) $record['duration'];
+      }
     }
   }
 
