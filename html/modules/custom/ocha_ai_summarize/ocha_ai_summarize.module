@@ -249,6 +249,14 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
   // Hide revision widget.
   $form['revision_log']['#access'] = FALSE;
 
+  // Remove old Arabic.
+  if (isset($form['field_document_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_document_language']['widget']['#options']['Arabic']);
+  }
+  if (isset($form['field_output_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_output_language']['widget']['#options']['Arabic']);
+  }
+
   if ($form_id === 'node_summary_form') {
     // Remove OpenAi.
     if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
@@ -336,6 +344,14 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
   // Hide revision widget.
   $form['revision_log']['#access'] = FALSE;
 
+  // Remove old Arabic.
+  if (isset($form['field_document_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_document_language']['widget']['#options']['Arabic']);
+  }
+  if (isset($form['field_output_language']['widget']['#options']['Arabic'])) {
+    unset($form['field_output_language']['widget']['#options']['Arabic']);
+  }
+
   if ($form_id === 'node_action_points_form') {
     // Remove OpenAi.
     if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
@@ -405,14 +421,42 @@ function ocha_ai_summarize_node_view(array &$build, EntityInterface $entity, Ent
     case 'summary':
       ocha_ai_summarize_node_view_moderation_state($build, $entity, $display, $view_mode);
       ocha_ai_summarize_node_view_compare($build, $entity, $display, $view_mode);
+      ocha_ai_summarize_node_view_timings($build, $entity, $display, $view_mode);
       break;
 
     case 'action_points':
       ocha_ai_summarize_node_view_moderation_state($build, $entity, $display, $view_mode);
       ocha_ai_summarize_node_view_action_points_compare($build, $entity, $display, $view_mode);
+      ocha_ai_summarize_node_view_timings($build, $entity, $display, $view_mode);
       break;
 
   }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view().
+ */
+function ocha_ai_summarize_node_view_timings(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\Entity\Node $entity */
+  if ($entity->bundle() !== 'summary' && $entity->bundle() !== 'action_points') {
+    return;
+  }
+
+  $timings = ocha_ai_summarize_log_time_get($entity->id());
+  if (empty($timings)) {
+    return;
+  }
+
+  foreach ($timings as $timing) {
+    $items[] = $timing->action . ': ' . round($timing->duration / 1000, 2) . 's';
+  }
+
+  $build['moderation_state'] = [
+    '#title' => t('Execution times'),
+    '#theme' => 'item_list',
+    '#items' => $items,
+    '#weight' => 100,
+  ];
 }
 
 /**
@@ -1510,4 +1554,185 @@ function ocha_ai_summarize_notify_user(NodeInterface $node) {
   ]);
 
   $mail_manager->mail($module, $key, $to, $langcode, $params);
+}
+
+/**
+ * Track execution times.
+ */
+function ocha_ai_summarize_log_time(string $action, int $nid, int $ms) : void {
+  \Drupal::database()
+    ->insert('ocha_ai_summarize_log_time')
+    ->fields([
+      'nid' => $nid,
+      'action' => $action,
+      'duration' => $ms,
+    ])
+    ->execute();
+}
+
+/**
+ * Track execution times of text extraction.
+ */
+function ocha_ai_summarize_log_time_extract(int $nid, int $ms) : void {
+  ocha_ai_summarize_log_time('extract_text', $nid, $ms);
+}
+
+/**
+ * Track execution times of summarize.
+ */
+function ocha_ai_summarize_log_time_summarize(int $nid, int $ms) : void {
+  ocha_ai_summarize_log_time('summarize', $nid, $ms);
+}
+
+/**
+ * Track execution times of action points.
+ */
+function ocha_ai_summarize_log_time_action_points(int $nid, int $ms) : void {
+  ocha_ai_summarize_log_time('action_point', $nid, $ms);
+}
+
+/**
+ * Get execution times for a node.
+ */
+function ocha_ai_summarize_log_time_get($nid) : array {
+  return \Drupal::database()
+    ->select('ocha_ai_summarize_log_time')
+    ->fields('ocha_ai_summarize_log_time')
+    ->condition('nid', $nid)
+    ->execute()
+    ->fetchAll();
+}
+
+/**
+ * Generate weekly AI tagging statistics.
+ */
+function ocha_ai_summarize_get_weekly_stats() {
+  $data = [
+    'total' => 0,
+    'summary' => [
+      'created' => 0,
+      'completed' => 0,
+      'score' => 0,
+      'thumbs' => [
+        'down' => 0,
+        'neutral' => 0,
+        'up' => 0,
+      ],
+      'timings' => [],
+    ],
+    'action_points' => [
+      'created' => 0,
+      'completed' => 0,
+      'score' => 0,
+      'thumbs' => [
+        'down' => 0,
+        'neutral' => 0,
+        'up' => 0,
+      ],
+      'timings' => [],
+    ],
+  ];
+
+  $average = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_created = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+  $docs_completed = [
+    'summary' => [],
+    'action_points' => [],
+  ];
+
+  $connection = \Drupal::database();
+
+  $records = $connection->query("
+    SELECT
+      n.nid,
+      n.uid,
+      n.type,
+      m.moderation_state,
+      r.field_rating_value as rating,
+      t.field_thumbs_value as thumbs
+    FROM node_field_data AS n
+      INNER JOIN content_moderation_state_field_data AS m ON n.nid = m.content_entity_id
+      LEFT JOIN comment_field_data c ON n.nid = c.entity_id AND c.entity_type = 'node'
+      LEFT JOIN comment__field_rating AS r ON c.cid = r.entity_id
+      LEFT JOIN comment__field_thumbs AS t ON c.cid = t.entity_id
+    WHERE n.type IN ('action_points', 'summary')
+      AND n.created >= UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) + 6 DAY))
+      AND n.created < UNIX_TIMESTAMP(DATE_SUB(DATE(NOW()), INTERVAL DAYOFWEEK(NOW()) - 1 DAY))
+    ORDER BY n.nid
+  ")->fetchAll(\PDO::FETCH_ASSOC);
+
+  if (empty($records)) {
+    return $data;
+  }
+
+  foreach ($records as $record) {
+    $docs_created[$record['type']][] = $record['nid'];
+
+    if (!empty($record['rating'])) {
+      $average[$record['type']][] = $record['rating'];
+    }
+
+    if (!empty($record['thumbs'])) {
+      $data[$record['type']]['thumbs'][$record['thumbs']]++;
+    }
+
+    switch ($record['moderation_state']) {
+      case 'summarized':
+      case 'action_points_created':
+        $docs_completed[$record['type']][] = $record['nid'];
+    }
+  }
+
+  $docs_created['summary'] = array_unique($docs_created['summary']);
+  $docs_created['action_points'] = array_unique($docs_created['action_points']);
+  $docs_completed['summary'] = array_unique($docs_completed['summary']);
+  $docs_completed['action_points'] = array_unique($docs_completed['action_points']);
+
+  $data['total'] = count($docs_created['summary']) + count($docs_created['action_points']);
+  $data['summary']['created'] = count($docs_created['summary']);
+  $data['summary']['completed'] = count($docs_completed['summary']);
+  $data['action_points']['created'] = count($docs_created['action_points']);
+  $data['action_points']['completed'] = count($docs_completed['action_points']);
+
+  if (count($average['summary'])) {
+    $data['summary']['score'] = array_sum($average['summary']) / count($average['summary']);
+  }
+  if (count($average['action_points'])) {
+    $data['action_points']['score'] = array_sum($average['action_points']) / count($average['action_points']);
+  }
+
+  // Get average timings.
+  if (!empty($docs_created['summary'])) {
+    $records = $connection->query("
+      SELECT action, AVG(duration) AS duration
+      FROM ocha_ai_summarize_log_time
+      WHERE nid in (" . implode(',', $docs_created['summary']) . ")
+      GROUP BY action;
+    ")->fetchAll(\PDO::FETCH_ASSOC);
+
+    foreach ($records as $record) {
+      $data['summary']['timings'][$record['action']] = (int) $record['duration'];
+    }
+  }
+
+  if (!empty($docs_created['action_points'])) {
+    $records = $connection->query("
+      SELECT action, AVG(duration) AS duration
+      FROM ocha_ai_summarize_log_time
+      WHERE nid in (" . implode(',', $docs_created['action_points']) . ")
+      GROUP BY action;
+    ")->fetchAll(\PDO::FETCH_ASSOC);
+
+    foreach ($records as $record) {
+      $data['action_points']['timings'][$record['action']] = (int) $record['duration'];
+    }
+  }
+
+  return $data;
 }

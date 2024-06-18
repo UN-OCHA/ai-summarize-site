@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ * Defines schema for the OCHA AI Summarize module tables.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function ocha_ai_summarize_schema() {
+  $schema['ocha_ai_summarize_log_time'] = [
+    'fields' => [
+      'id' => [
+        'description' => 'Unique ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+      ],
+      'nid' => [
+        'description' => 'Node id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'action' => [
+        'description' => 'Action',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'duration' => [
+        'description' => 'Duration in milliseconds.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => FALSE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Add the OCHA AI timing logs table.
+ */
+function ocha_ai_summarize_update_10001(array &$sandbox) {
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('ocha_ai_summarize_log_time')) {
+    $schema->createTable('ocha_ai_summarize_log_time', ocha_ai_summarize_schema()['ocha_ai_summarize_log_time']);
+  }
+}

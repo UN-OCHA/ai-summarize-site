@@ -1,0 +1,30 @@
+uuid: 040291b4-fd6a-4322-ad67-06edd49e0acd
+langcode: en
+status: true
+dependencies:
+  module:
+    - comment
+    - options
+id: comment.field_thumbs
+field_name: field_thumbs
+entity_type: comment
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: up
+      label: Up
+    -
+      value: down
+      label: Down
+    -
+      value: neutral
+      label: 'Provide detailed feedback'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
