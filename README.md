@@ -30,7 +30,7 @@ drush queue:run ocha_ai_summarize_summarize --verbose
 drush queue:run ocha_ai_summarize_action_points --verbose
 ```
 
-We can either use cron to run the queues or run them separatly
+We can either use cron to run the queues or run them separately
 
 ## Flow
 
