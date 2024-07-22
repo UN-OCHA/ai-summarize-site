@@ -27,5 +27,12 @@ content:
     third_party_settings: {  }
     weight: 100
     region: content
+  private:
+    type: private
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
 hidden:
   langcode: true
