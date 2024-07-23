@@ -1254,6 +1254,48 @@ function ocha_ai_summarize_http_call_bedrock($prompt) {
 }
 
 /**
+ * Make chat call to Titan Premier.
+ */
+function ocha_ai_summarize_http_call_titan_premier($prompt) {
+  $model = 'amazon.titan-text-premier-v1:0';
+  $client_options = ocha_ai_summarize_get_aws_client_options();
+
+  $bedRock = new BedrockRuntimeClient($client_options);
+
+  $payload = [
+    'accept' => 'application/json',
+    'body' => json_encode([
+      'inputText' => $prompt,
+      'textGenerationConfig' => [
+        'maxTokenCount' => 3000,
+        'stopSequences' => [],
+        'temperature' => 0.0,
+        'topP' => 0.9,
+      ],
+    ]),
+    'contentType' => 'application/json',
+    'modelId' => $model,
+  ];
+
+  try {
+    /** @var \Aws\Result $response */
+    $response = $bedRock->invokeModel($payload);
+  }
+  catch (\Exception $exception) {
+    \Drupal::logger('AI - Titan premier')->error($exception->getMessage());
+    return '';
+  }
+
+  try {
+    return json_decode($response->get('body')->getContents(), TRUE);
+  }
+  catch (\Exception $exception) {
+    \Drupal::logger('AI - Titan premier')->error($exception->getMessage());
+    return '';
+  }
+}
+
+/**
  * Make chat call to Claude.
  */
 function ocha_ai_summarize_http_call_claude($prompt) {
@@ -1344,6 +1386,11 @@ function ocha_ai_summarize_check_length($text, $bot) {
     case 'bedrock':
       $max_tokens = 2 * 42000;
       break;
+
+    case 'amazon_titan_premier':
+      $max_tokens = 2 * 3072;
+      break;
+
   }
 
   $max_tokens = round($max_tokens, 0);
@@ -1597,22 +1644,22 @@ function ocha_ai_summarize_log_time(string $action, int $nid, int $ms) : void {
 /**
  * Track execution times of text extraction.
  */
-function ocha_ai_summarize_log_time_extract(int $nid, int $ms) : void {
-  ocha_ai_summarize_log_time('extract_text', $nid, $ms);
+function ocha_ai_summarize_log_time_extract(int $nid, float $ms) : void {
+  ocha_ai_summarize_log_time('extract_text', $nid, round($ms));
 }
 
 /**
  * Track execution times of summarize.
  */
-function ocha_ai_summarize_log_time_summarize(int $nid, int $ms) : void {
-  ocha_ai_summarize_log_time('summarize', $nid, $ms);
+function ocha_ai_summarize_log_time_summarize(int $nid, float $ms) : void {
+  ocha_ai_summarize_log_time('summarize', $nid, round($ms));
 }
 
 /**
  * Track execution times of action points.
  */
-function ocha_ai_summarize_log_time_action_points(int $nid, int $ms) : void {
-  ocha_ai_summarize_log_time('action_point', $nid, $ms);
+function ocha_ai_summarize_log_time_action_points(int $nid, float $ms) : void {
+  ocha_ai_summarize_log_time('action_point', $nid, round($ms));
 }
 
 /**

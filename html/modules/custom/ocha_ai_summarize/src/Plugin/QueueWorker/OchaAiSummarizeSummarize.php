@@ -166,6 +166,10 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
             $results[] = $this->sendToBedRock($prompt . $text);
             break;
 
+          case 'amazon_titan_premier':
+            $results[] = $this->sendToTitanPremier($prompt . $text);
+            break;
+
         }
       }
 
@@ -190,6 +194,11 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
         case 'bedrock':
           $summary = $this->sendToBedRock($prompt . $text);
           break;
+
+        case 'amazon_titan_premier':
+          $summary = $this->sendToTitanPremier($prompt . $text);
+          break;
+
       }
       ocha_ai_summarize_log_time_summarize($nid, Timer::read('summarize'));
       Timer::stop('summarize');
@@ -248,6 +257,15 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
    */
   protected function sendToBedRock($text) : string {
     $result = ocha_ai_summarize_http_call_bedrock($text);
+    return $result['results'][0]['outputText'] ?? '';
+  }
+
+  /**
+   * Send query to Titan Premier.
+   */
+  protected function sendToTitanPremier($text) : string {
+    $result = ocha_ai_summarize_http_call_titan_premier($text);
+    print_r($result);
     return $result['results'][0]['outputText'] ?? '';
   }
 

@@ -17,7 +17,7 @@ required: false
 translatable: false
 default_value:
   -
-    value: azure_trained
+    value: amazon_titan_premier
 default_value_callback: ''
 settings: {  }
 field_type: list_string

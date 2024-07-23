@@ -23,6 +23,9 @@ settings:
     -
       value: claude
       label: Claude
+    -
+      value: amazon_titan_premier
+      label: 'Amazon Titan Text Premier'
   allowed_values_function: ''
 module: options
 locked: false
