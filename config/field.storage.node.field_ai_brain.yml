@@ -16,13 +16,16 @@ settings:
       label: 'Open AI (chat-gpt-3.5)'
     -
       value: azure_trained
-      label: 'Trained Azure AI'
+      label: 'Azure OpenAI 3.5'
     -
       value: bedrock
       label: 'BedRock (Titan)'
     -
       value: claude
       label: Claude
+    -
+      value: amazon_titan_premier
+      label: 'Amazon Titan Text Premier'
   allowed_values_function: ''
 module: options
 locked: false
