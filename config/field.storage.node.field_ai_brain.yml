@@ -16,7 +16,7 @@ settings:
       label: 'Open AI (chat-gpt-3.5)'
     -
       value: azure_trained
-      label: 'Trained Azure AI'
+      label: 'Azure OpenAI 3.5'
     -
       value: bedrock
       label: 'BedRock (Titan)'
