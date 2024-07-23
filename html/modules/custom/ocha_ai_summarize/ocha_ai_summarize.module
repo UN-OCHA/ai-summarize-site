@@ -1544,13 +1544,37 @@ function ocha_ai_summarize_notify_user(NodeInterface $node) {
 
   $ai_models = $node->get('field_ai_brain')->getSettings()['allowed_values'];
   $ai_model = $ai_models[$node->get('field_ai_brain')->value];
+  $sub_title = $node->type->entity->label();
 
-  $params['subject'] = t('AI Summarize: your document has been processed.');
-  $params['message'] = implode("\r\n\r\n", [
+  $field_name = '';
+  $ai_text = '';
+
+  switch ($node->bundle()) {
+    case 'summary':
+      $field_name = 'field_summary';
+      $ai_text = $node->get($field_name)->value;
+      break;
+
+    case 'action_points':
+      $field_name = 'field_action_points';
+      $ai_text = $node->get($field_name)->value;
+      break;
+
+  }
+
+  $params['subject'] = t('AI Summarize: @title - has been processed.', [
+    '@title' => $node->getTitle(),
+  ]);
+  $params['message'] = implode("\r\n", [
     t('Your document has been processed by @model.', ['@model' => $ai_model]),
-    t('You can see the result on @link', [
+    '',
+    t('You can always see your results and provide feedback online here: @link', [
       '@link' => $node->toUrl()->setAbsolute()->toString(),
     ]),
+    '',
+    $sub_title,
+    '',
+    $ai_text,
   ]);
 
   $mail_manager->mail($module, $key, $to, $langcode, $params);
