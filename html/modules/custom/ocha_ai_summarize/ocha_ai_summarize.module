@@ -1612,17 +1612,29 @@ function ocha_ai_summarize_notify_user(NodeInterface $node) {
   $params['subject'] = t('AI Summarize: @title - has been processed.', [
     '@title' => $node->getTitle(),
   ]);
-  $params['message'] = implode("\r\n", [
-    t('Your document has been processed by @model.', ['@model' => $ai_model]),
-    '',
-    t('You can always see your results and provide feedback online here: @link', [
-      '@link' => $node->toUrl()->setAbsolute()->toString(),
-    ]),
-    '',
-    $sub_title,
-    '',
-    $ai_text,
-  ]);
+
+  if (!empty($ai_text)) {
+    $params['message'] = implode("\r\n", [
+      t('Your document has been processed by @model.', ['@model' => $ai_model]),
+      '',
+      t('You can always see your results and provide feedback online here: @link', [
+        '@link' => $node->toUrl()->setAbsolute()->toString(),
+      ]),
+      '',
+      $sub_title,
+      '',
+      $ai_text,
+    ]);
+  }
+  else {
+    $params['message'] = implode("\r\n", [
+      t('Your document has been processed by @model but was unable to generate it.', ['@model' => $ai_model]),
+      '',
+      t('You can always see your results and provide feedback online here: @link', [
+        '@link' => $node->toUrl()->setAbsolute()->toString(),
+      ]),
+    ]);
+  }
 
   $mail_manager->mail($module, $key, $to, $langcode, $params);
 }

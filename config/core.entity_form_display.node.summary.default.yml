@@ -44,7 +44,7 @@ third_party_settings:
         id: ''
         open: false
         description: ''
-        required_fields: false
+        required_fields: true
 id: node.summary.default
 targetEntityType: node
 bundle: summary
