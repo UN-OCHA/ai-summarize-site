@@ -263,6 +263,11 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
       unset($form['field_ai_brain']['widget']['#options']['openai']);
     }
 
+    // Remove Claude.
+    if (isset($form['field_ai_brain']['widget']['#options']['claude'])) {
+      unset($form['field_ai_brain']['widget']['#options']['claude']);
+    }
+
     $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_summary']['#access'] = FALSE;
@@ -356,6 +361,11 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
     // Remove OpenAi.
     if (isset($form['field_ai_brain']['widget']['#options']['openai'])) {
       unset($form['field_ai_brain']['widget']['#options']['openai']);
+    }
+
+    // Remove Claude.
+    if (isset($form['field_ai_brain']['widget']['#options']['claude'])) {
+      unset($form['field_ai_brain']['widget']['#options']['claude']);
     }
 
     $form['actions']['submit']['#value'] = t('Generate');
