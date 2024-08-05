@@ -265,7 +265,6 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
    */
   protected function sendToTitanPremier($text) : string {
     $result = ocha_ai_summarize_http_call_titan_premier($text);
-    print_r($result);
     return $result['results'][0]['outputText'] ?? '';
   }
 
