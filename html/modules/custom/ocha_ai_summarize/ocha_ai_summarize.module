@@ -52,6 +52,10 @@ function ocha_ai_summarize_node_insert(EntityInterface $entity) {
       if ($ai == 'openai') {
         continue;
       }
+      // Skip claude.
+      if ($ai == 'claude') {
+        continue;
+      }
 
       if ($ai == $current_ai) {
         continue;
