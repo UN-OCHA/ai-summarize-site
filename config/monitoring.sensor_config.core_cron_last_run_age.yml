@@ -1,9 +1,7 @@
-uuid: 2eb4fe7f-035b-42b4-9ddf-86030f5c107f
+uuid: b4c8e734-ada0-47e8-933b-23b2da074044
 langcode: en
 status: true
 dependencies: {  }
-_core:
-  default_config_hash: 9xaHOMw0Ra9sOuNKGoBqCLFoX2pj_66FbTQPK1CFK1U
 id: core_cron_last_run_age
 label: 'Last cron run age'
 description: 'Time since last cron run'

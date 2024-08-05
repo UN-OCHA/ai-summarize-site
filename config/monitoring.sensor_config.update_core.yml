@@ -1,11 +1,9 @@
-uuid: aa1a958a-1cc0-4f29-a0a8-3b79d682464e
+uuid: 0ed5e8bc-a448-40d2-957b-258ef7de6f4d
 langcode: en
 status: true
 dependencies:
   module:
     - update
-_core:
-  default_config_hash: FSvo5_4kGyvNZu9RVgfFKnGfbGkIS8EgI46ckVkT6CM
 id: update_core
 label: Core
 description: 'Available updates for Drupal core'

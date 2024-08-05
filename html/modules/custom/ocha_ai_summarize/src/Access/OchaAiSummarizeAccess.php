@@ -43,6 +43,7 @@ class OchaAiSummarizeAccess implements AccessInterface {
   public function access(AccountInterface $account) {
     $header_secret = $this->requestStack->getCurrentRequest()->headers->get('weekly-stats-api-key') ?? NULL;
     $config_secret = $this->config('ocha_ai_summarize')->get('statistics.key');
+
     if ((!empty($header_secret) && $header_secret === $config_secret)
       || $account->hasPermission('ocha_ai_summarize stats')) {
       $access_result = AccessResult::allowed();

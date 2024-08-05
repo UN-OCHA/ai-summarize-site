@@ -1,16 +1,16 @@
-uuid: 7cc8c3a2-d108-4ee6-9158-0d6450e41e34
+uuid: 78b4e7f6-73c1-416d-a7ac-3e64f441a20f
 langcode: en
 status: true
 dependencies:
   module:
     - ocha_monitoring
-id: ocha_current_release
-label: 'Current release'
-description: 'Current release'
+id: ocha_admin_paths
+label: 'UN admin paths'
+description: 'UN admin paths'
 category: OCHA
-plugin_id: ocha_current_release
+plugin_id: ocha_admin_paths
 result_class: null
-value_label: Release
+value_label: Version
 value_type: string
 caching_time: 86400
 settings: {  }
