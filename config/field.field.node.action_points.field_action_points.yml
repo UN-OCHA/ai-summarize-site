@@ -4,14 +4,9 @@ status: true
 dependencies:
   config:
     - field.storage.node.field_action_points
-    - filter.format.text_editor_simple
     - node.type.action_points
   module:
-    - allowed_formats
     - text
-third_party_settings:
-  allowed_formats:
-    allowed_formats: {  }
 id: node.action_points.field_action_points
 field_name: field_action_points
 entity_type: node
@@ -23,6 +18,5 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:
-  allowed_formats:
-    - text_editor_simple
+  allowed_formats: {  }
 field_type: text_long
