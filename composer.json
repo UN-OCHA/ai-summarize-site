@@ -70,6 +70,7 @@
         "webflo/drupal-finder": "^1.2.2"
     },
     "require-dev": {
+        "davidrjonas/composer-lock-diff": "^1.0",
         "drupal/coder": "^8.3",
         "drupal/config_inspector": "^2.1",
         "drupal/dev_mode": "^2.3",
@@ -166,7 +167,7 @@
                 },
                 "[web-root]/robots.txt": {
                     "append": "assets/robots.txt.append"
-               }
+                }
             },
             "locations": {
                 "web-root": "html/"
@@ -187,7 +188,7 @@
             ],
             "post-create-project-cmd-message": [
                 "<bg=blue;fg=white>                                                         </>",
-                "<bg=blue;fg=white>  Congratulations, you\u2019ve installed the Drupal codebase  </>",
+                "<bg=blue;fg=white>  Congratulations, you’ve installed the Drupal codebase  </>",
                 "<bg=blue;fg=white>  from the drupal/recommended-project template!          </>",
                 "<bg=blue;fg=white>                                                         </>",
                 "",
@@ -244,5 +245,6 @@
         "pre-pool-create": [
             "scripts\\composer\\DrupalLenientRequirement::changeVersionConstraint"
         ]
-    }
+    },
+    "version": "1.2.3"
 }
