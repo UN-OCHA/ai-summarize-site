@@ -3,11 +3,11 @@
 namespace Drupal\ocha_ai_summarize\Plugin\QueueWorker;
 
 use Drupal\Component\Utility\Timer;
+use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\content_moderation\Entity\ContentModerationState;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
