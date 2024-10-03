@@ -59,6 +59,8 @@ services:
       - ENVIRONMENT=dev
       - NGINX_SERVERNAME=ai-summarize-test-site,localhost,127.0.0.1
       - NGINX_OVERRIDE_PROTOCOL=HTTP,ai-summarize-test-site,localhost,127.0.0.1
+      - NGINX_LIMIT_BOTS=64r/s
+      - NGINX_BURST_BOTS=256 nodelay
       - DRUSH_OPTIONS_URI=http://ai-summarize-test-site
       - DRUPAL_DB_DATABASE=ai-summarize
       - DRUPAL_DB_USERNAME=ai-summarize
