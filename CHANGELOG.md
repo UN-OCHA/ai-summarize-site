@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.2.5](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.4...v1.2.5) (2024-11-18)
+
+### Chores
+
+* Csp restore data: as exception for img-src ([555dc2](https://github.com/UN-OCHA/ai-summarize-site/commit/555dc2266b7aac02ddf203080befc3f64b3db823))
+* Remove data: for csp ([693f5e](https://github.com/UN-OCHA/ai-summarize-site/commit/693f5ee5eeaf73354e8f8f890211c7bb42167700))
+* Update all outdated drupal/* unocha/* drush/* packages. ([77b468](https://github.com/UN-OCHA/ai-summarize-site/commit/77b4684ef19835e18f88bb0f9843278342b8ab88), [977497](https://github.com/UN-OCHA/ai-summarize-site/commit/97749740f4accb9165db472319f4723e225484bb), [6da39d](https://github.com/UN-OCHA/ai-summarize-site/commit/6da39d7eec8570f82d57d180f52dabe915d2d0f4), [bc4c92](https://github.com/UN-OCHA/ai-summarize-site/commit/bc4c929f69504fe403e89c517e68e81ef72d4726), [a23361](https://github.com/UN-OCHA/ai-summarize-site/commit/a233615336bf765877bf9327225b01069092fd95))
+* Update metatag module ([478bc7](https://github.com/UN-OCHA/ai-summarize-site/commit/478bc7e0b6b6c0f100f52b5fcee300da103c124e))
+
 ## [1.2.2](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.1...v1.2.2) (2024-08-13)
 
 

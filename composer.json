@@ -44,7 +44,7 @@
         "drupal/mailsystem": "^4.4",
         "drupal/maintenance200": "^2.1",
         "drupal/memcache": "^2.5",
-        "drupal/metatag": "^1.22",
+        "drupal/metatag": "^2",
         "drupal/node_view_permissions": "^1.6",
         "drupal/paragraphs": "^1.15",
         "drupal/pathauto": "^1.8",
@@ -111,7 +111,7 @@
             "abandoned": "report",
             "ignore": {
                 "GHSA-mg8j-w93w-xjgc": "OPS-10899 - we do not store the hash salt in a file"
-             }
+            }
         }
     },
     "extra": {
@@ -249,5 +249,5 @@
             "scripts\\composer\\DrupalLenientRequirement::changeVersionConstraint"
         ]
     },
-    "version": "1.2.3"
+    "version": "1.2.5"
 }

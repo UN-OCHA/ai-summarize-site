@@ -16,7 +16,7 @@ seckit_xss:
     frame-src: "'self' https://www.googletagmanager.com"
     frame-ancestors: "'self'"
     child-src: "'self'"
-    font-src: "'self' data: fonts.gstatic.com"
+    font-src: "'self' fonts.gstatic.com"
     connect-src: "'self' https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://*.googletagmanager.com"
     report-uri: /report-csp-violation
     upgrade-req: false
