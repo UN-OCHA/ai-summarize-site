@@ -4,6 +4,12 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.2.6](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.5...v1.2.6) (2024-11-21)
+
+### Chores
+
+* Update all outdated drupal/* unocha/* drush/* packages. ([bc3cef](https://github.com/UN-OCHA/ai-summarize-site/commit/bc3cefbc3702a629854288765ab4339088ba93e1))
+
 ## [1.2.5](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.4...v1.2.5) (2024-11-18)
 
 ### Chores
