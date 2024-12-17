@@ -4,6 +4,18 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.2.8](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.7...v1.2.8) (2024-12-16)
+
+### Chores
+
+* Update all outdated drupal/* unocha/* drush/* packages. ([1cdf36](https://github.com/UN-OCHA/ai-summarize-site/commit/1cdf3675bea1491c7906484729ad31f20ef3d25a), [4f5fec](https://github.com/UN-OCHA/ai-summarize-site/commit/4f5fec6cbd33109ba4537b2bef57687335f8eafd), [29ab5e](https://github.com/UN-OCHA/ai-summarize-site/commit/29ab5e7430911f71d42a92facfff6de854b740ea))
+
+## [1.2.8](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.7...v1.2.8) (2024-12-16)
+
+### Chores
+
+* Update all outdated drupal/* unocha/* drush/* packages. ([1cdf36](https://github.com/UN-OCHA/ai-summarize-site/commit/1cdf3675bea1491c7906484729ad31f20ef3d25a), [4f5fec](https://github.com/UN-OCHA/ai-summarize-site/commit/4f5fec6cbd33109ba4537b2bef57687335f8eafd), [29ab5e](https://github.com/UN-OCHA/ai-summarize-site/commit/29ab5e7430911f71d42a92facfff6de854b740ea))
+
 ## [1.2.6](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.5...v1.2.6) (2024-11-21)
 
 ### Chores
