@@ -4,6 +4,17 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.2.9](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.8...v1.2.9) (2025-01-14)
+
+### Chores
+
+* Bump version of mariadb for local development ([afb5ac](https://github.com/UN-OCHA/ai-summarize-site/commit/afb5ac7118988e510e0e00a5108d7fa5b590c822))
+* Update all outdated drupal/* unocha/* drush/* packages. ([a069f7](https://github.com/UN-OCHA/ai-summarize-site/commit/a069f78b15fe8a7288f0340d09194e07eac36c4f), [a66ab5](https://github.com/UN-OCHA/ai-summarize-site/commit/a66ab5aaa245fc4b6c0063017cbcc398e54a83e3), [b1cf2c](https://github.com/UN-OCHA/ai-summarize-site/commit/b1cf2c975dfbbaea3be09556d2a028a302fa61b6), [534a44](https://github.com/UN-OCHA/ai-summarize-site/commit/534a447651176584d4c015ba6f490a7a53072e9f))
+
+##### Tests
+
+* Bump the test MariaDB to match what the dev sites will use soon. (#178) ([40f1e3](https://github.com/UN-OCHA/ai-summarize-site/commit/40f1e3fd01e6145a7f3420785a6dbeee2916c0cb))
+
 ## [1.2.8](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.7...v1.2.8) (2024-12-16)
 
 ### Chores
