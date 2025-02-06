@@ -1,8 +1,5 @@
 {
   "patches": {
-    "drupal/admin_feedback": {
-      "https://www.drupal.org/project/admin_feedback/issues/3389123": "https://www.drupal.org/files/issues/2023-09-22/admin_feedback-install_from_config-3112866-2.patch"
-    },
     "drupal/core": {
       "https://www.drupal.org/project/drupal/issues/3418098": "PATCHES/core--drupal--3418098-php-mailer.patch"
     },
