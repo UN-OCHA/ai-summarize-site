@@ -131,6 +131,18 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
       ocha_ai_summarize_log_time_action_points($nid, Timer::read('action_points'));
       Timer::stop('action_points');
     }
+    elseif ($bot == 'amazon_nova_micro') {
+      $text = '';
+      foreach ($node->field_document_text as $document_text) {
+        $text = $document_text->value . "\n";
+      }
+
+      $text = ocha_ai_summarize_check_length($text, $bot);
+      Timer::start('action_points');
+      $action_points = $this->sendToNovaMicro($prompt . $text);
+      ocha_ai_summarize_log_time_action_points($nid, Timer::read('action_points'));
+      Timer::stop('action_points');
+    }
     else {
       // Summarize each page.
       Timer::start('summarize');
@@ -270,6 +282,14 @@ class OchaAiSummarizeActionPoints extends QueueWorkerBase implements ContainerFa
   protected function sendToTitanPremier($text) : string {
     $result = ocha_ai_summarize_http_call_titan_premier($text);
     return $result['results'][0]['outputText'] ?? '';
+  }
+
+  /**
+   * Send query to Nova Micro.
+   */
+  protected function sendToNovaMicro($text) : string {
+    $result = ocha_ai_summarize_http_call_nova_micro($text);
+    return $result['output']['message']['content'][0]['text'];
   }
 
   /**
