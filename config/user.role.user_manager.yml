@@ -8,6 +8,7 @@ dependencies:
     - content_moderation
     - node
     - node_view_permissions
+    - system
     - toolbar
 id: user_manager
 label: 'User manager'
@@ -22,4 +23,5 @@ permissions:
   - 'view any summary content'
   - 'view any unpublished content'
   - 'view latest version'
+  - 'view the administration theme'
   - 'view user email addresses'
