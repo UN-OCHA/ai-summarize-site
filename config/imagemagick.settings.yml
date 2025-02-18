@@ -59,4 +59,4 @@ advanced:
   profile: ''
   coalesce: false
 locale: en_US.UTF-8
-imagemagick_version: v6
+imagemagick_version: v7

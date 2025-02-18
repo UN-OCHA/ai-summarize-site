@@ -1,8 +1,5 @@
 {
   "patches": {
-    "drupal/admin_feedback": {
-      "https://www.drupal.org/project/admin_feedback/issues/3389123": "https://www.drupal.org/files/issues/2023-09-22/admin_feedback-install_from_config-3112866-2.patch"
-    },
     "drupal/core": {
       "https://www.drupal.org/project/drupal/issues/3418098": "PATCHES/core--drupal--3418098-php-mailer.patch"
     },
@@ -13,7 +10,6 @@
       "Allow activate on users": "PATCHES/social_auth_blocked.patch"
     },
     "drupal/user_expire": {
-      "Allow the notification email to be customised": "PATCHES/user_expire-customize-notification-email.patch",
       "Reset expiration when user is reactivated": "PATCHES/user_expire-reset-expiration-on-reactivation.patch"
     },
     "drupal/username_enumeration_prevention": {

@@ -17,7 +17,7 @@ required: false
 translatable: false
 default_value:
   -
-    value: amazon_titan_premier
+    value: amazon_nova_micro
 default_value_callback: ''
 settings: {  }
 field_type: list_string

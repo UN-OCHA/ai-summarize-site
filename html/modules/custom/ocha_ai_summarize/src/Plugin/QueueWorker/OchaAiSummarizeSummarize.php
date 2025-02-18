@@ -108,14 +108,14 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       ]);
     }
 
-    $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs', [
+    $prompt = $this->t('Make a summary of maximum @num_paragraphs paragraphs of the following text, be concise and to the point.', [
       '@num_paragraphs' => $num_paragraphs,
     ], [
       'langcode' => ocha_ai_summarize_get_lang_code($document_language),
     ])->__toString();
 
     if ($document_language !== $output_language) {
-      $prompt = $this->t('Summarize the following text in @num_paragraphs paragraphs and translate to @output_language', [
+      $prompt = $this->t('Make a summary of maximum @num_paragraphs paragraphs of the following text, be concise and to the point. Translate to @output_language', [
         '@num_paragraphs' => $num_paragraphs,
         '@output_language' => ocha_ai_summarize_get_lang_name_translated($output_language),
       ], [
@@ -135,6 +135,18 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
       $text = ocha_ai_summarize_check_length($text, $bot);
       Timer::start('summarize');
       $summary = $this->sendToClaudeAi($prompt . $text);
+      ocha_ai_summarize_log_time_summarize($nid, Timer::read('summarize'));
+      Timer::stop('summarize');
+    }
+    elseif ($bot == 'amazon_nova_micro') {
+      $text = '';
+      foreach ($node->field_document_text as $document_text) {
+        $text = $document_text->value . "\n";
+      }
+
+      $text = ocha_ai_summarize_check_length($text, $bot);
+      Timer::start('summarize');
+      $summary = $this->sendToNovaMicro($prompt . $text);
       ocha_ai_summarize_log_time_summarize($nid, Timer::read('summarize'));
       Timer::stop('summarize');
     }
@@ -266,6 +278,14 @@ class OchaAiSummarizeSummarize extends QueueWorkerBase implements ContainerFacto
   protected function sendToTitanPremier($text) : string {
     $result = ocha_ai_summarize_http_call_titan_premier($text);
     return $result['results'][0]['outputText'] ?? '';
+  }
+
+  /**
+   * Send query to Nova Micro.
+   */
+  protected function sendToNovaMicro($text) : string {
+    $result = ocha_ai_summarize_http_call_nova_micro($text);
+    return $result['output']['message']['content'][0]['text'];
   }
 
   /**

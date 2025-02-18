@@ -56,6 +56,10 @@ function ocha_ai_summarize_node_insert(EntityInterface $entity) {
       if ($ai == 'claude') {
         continue;
       }
+      // Skip titan.
+      if ($ai == 'amazon_titan_premier') {
+        continue;
+      }
 
       if ($ai == $current_ai) {
         continue;
@@ -272,6 +276,11 @@ function ocha_ai_summarize_form_node_summary_alter(&$form, FormStateInterface $f
       unset($form['field_ai_brain']['widget']['#options']['claude']);
     }
 
+    // Remove Titan.
+    if (isset($form['field_ai_brain']['widget']['#options']['amazon_titan_premier'])) {
+      unset($form['field_ai_brain']['widget']['#options']['amazon_titan_premier']);
+    }
+
     $form['actions']['submit']['#value'] = t('Generate');
     $form['field_document_text']['#access'] = FALSE;
     $form['field_summary']['#access'] = FALSE;
@@ -370,6 +379,11 @@ function ocha_ai_summarize_form_node_action_points_alter(&$form, FormStateInterf
     // Remove Claude.
     if (isset($form['field_ai_brain']['widget']['#options']['claude'])) {
       unset($form['field_ai_brain']['widget']['#options']['claude']);
+    }
+
+    // Remove Titan.
+    if (isset($form['field_ai_brain']['widget']['#options']['amazon_titan_premier'])) {
+      unset($form['field_ai_brain']['widget']['#options']['amazon_titan_premier']);
     }
 
     $form['actions']['submit']['#value'] = t('Generate');
@@ -823,7 +837,7 @@ function ocha_ai_summarize_get_num_pages($filename) {
 function ocha_ai_summarize_extract_pages_from_doc($filename, $document_language = 'eng') {
   $reader_name = '';
   $file_parts = pathinfo($filename);
-  switch (strtolower($file_parts['extension'])) {
+  switch (strtolower($file_parts['extension']) ?? '') {
     case 'docx':
       $reader_name = 'Word2007';
       break;
@@ -1310,6 +1324,65 @@ function ocha_ai_summarize_http_call_titan_premier($prompt) {
 }
 
 /**
+ * Make chat call to Nova Micro.
+ */
+function ocha_ai_summarize_http_call_nova_micro($prompt, $system_prompts = []) {
+  if (empty($system_prompts)) {
+    $system_prompts = [
+      [
+        'text' => 'You are an information management officer working for United Nations Office for the Coordination of Humanitarian Affairs.',
+      ],
+    ];
+  }
+
+  $model = 'amazon.nova-micro-v1:0';
+  $client_options = ocha_ai_summarize_get_aws_client_options();
+
+  $bedRock = new BedrockRuntimeClient($client_options);
+
+  $payload = [
+    'accept' => 'application/json',
+    'body' => json_encode([
+      'schemaVersion' => 'messages-v1',
+      'system' => $system_prompts,
+      'messages' => [
+        [
+          'role' => 'user',
+          'content' => [
+            ['text' => $prompt],
+          ],
+        ],
+      ],
+      'inferenceConfig' => [
+        'max_new_tokens' => 5000,
+        'top_p' => 0.9,
+        'top_k' => 20,
+        'temperature' => 0.1,
+      ],
+    ]),
+    'contentType' => 'application/json',
+    'modelId' => $model,
+  ];
+
+  try {
+    /** @var \Aws\Result $response */
+    $response = $bedRock->invokeModel($payload);
+  }
+  catch (\Exception $exception) {
+    \Drupal::logger('AI - Nova micro')->error($exception->getMessage());
+    return '';
+  }
+
+  try {
+    return json_decode($response->get('body')->getContents(), TRUE);
+  }
+  catch (\Exception $exception) {
+    \Drupal::logger('AI - Nova micro')->error($exception->getMessage());
+    return '';
+  }
+}
+
+/**
  * Make chat call to Claude.
  */
 function ocha_ai_summarize_http_call_claude($prompt) {
@@ -1403,6 +1476,10 @@ function ocha_ai_summarize_check_length($text, $bot) {
 
     case 'amazon_titan_premier':
       $max_tokens = 2 * 3072;
+      break;
+
+    case 'amazon_nova_micro':
+      $max_tokens = 2 * 100000;
       break;
 
   }

@@ -26,6 +26,9 @@ settings:
     -
       value: amazon_titan_premier
       label: 'Amazon Titan Text Premier'
+    -
+      value: amazon_nova_micro
+      label: 'Amazon Nova Micro'
   allowed_values_function: ''
 module: options
 locked: false
