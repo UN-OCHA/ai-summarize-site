@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.3.0](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.9...v1.3.0) (2025-02-18)
+
+### Features
+
+* Remove titan, add nova [#OPS-11332](https://https://humanitarian.atlassian.net/browse/OPS-11332) ([7fec55](https://github.com/UN-OCHA/ai-summarize-site/commit/7fec55191393a32fb2b13eec4939dfa25bd69b04))
+
+### Chores
+
+* Bump imagemagick version (#186) ([65a308](https://github.com/UN-OCHA/ai-summarize-site/commit/65a308deb8afb5848dca05dd44439f435dd01e50))
+* Remove allowed_formats module and handle configuration ([d69dfd](https://github.com/UN-OCHA/ai-summarize-site/commit/d69dfdacb867578a567b1033d39c364d36d23ad8))
+* Remove patch and update user_expire module ([b57ae0](https://github.com/UN-OCHA/ai-summarize-site/commit/b57ae088dc2e93af069d62b5ed0dc6bb27b03598))
+* Remove unused module config_filter ([095d40](https://github.com/UN-OCHA/ai-summarize-site/commit/095d403b24b9d7aa9090c85b945e46b104082f99))
+* Update all outdated drupal/* unocha/* drush/* weitzman/drupal-test-traits packages. ([237e18](https://github.com/UN-OCHA/ai-summarize-site/commit/237e1859338debff27d7b552ba9f2213b324e252), [662ccf](https://github.com/UN-OCHA/ai-summarize-site/commit/662ccfb02c6f0e47666a8d9bfb34e9ba4a3f717f), [a9e2c9](https://github.com/UN-OCHA/ai-summarize-site/commit/a9e2c93b27e238ad5ac4c2ae5e5d56d136cf9306))
+
 ## [1.2.9](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.8...v1.2.9) (2025-01-14)
 
 ### Chores
