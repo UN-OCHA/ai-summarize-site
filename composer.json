@@ -26,7 +26,6 @@
         "cweagans/composer-patches": "^1.7",
         "drupal/admin_denied": "^2.0",
         "drupal/admin_feedback": "^2.6",
-        "drupal/allowed_formats": "^3",
         "drupal/amazon_ses": "3.0.x-dev",
         "drupal/aws": "2.0.x-dev",
         "drupal/components": "^3.0@beta",
