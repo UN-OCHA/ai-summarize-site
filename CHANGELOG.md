@@ -4,6 +4,16 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.4.0](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.3.0...v1.4.0) (2025-02-20)
+
+### Features
+
+* Use admin theme to manage people ([5ca6bc](https://github.com/UN-OCHA/ai-summarize-site/commit/5ca6bc7c408a1f287ac92e952c0489f6a1f096f1))
+
+### Chores
+
+* Update all outdated drupal/* unocha/* drush/* weitzman/drupal-test-traits packages. ([92c580](https://github.com/UN-OCHA/ai-summarize-site/commit/92c58030fe6ed3dab9b55fc9e99d1206c63390cc))
+
 ## [1.3.0](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.2.9...v1.3.0) (2025-02-18)
 
 ### Features
