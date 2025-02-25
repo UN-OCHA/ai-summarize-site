@@ -6,6 +6,18 @@
     "drupal/csp": {
       "Simplify log format": "PATCHES/csp-log-format.patch"
     },
+    "drupal/dev_mode": {
+      "D11 compatibility - #3429839": "PATCHES/dev_mode-D11-compatibility-3429839.patch"
+    },
+    "drupal/maintenance200": {
+      "D11 compatibility - #3431791": "PATCHES/maintenance200-D11-compatibility-3431791.patch"
+    },
+    "drupal/node_view_permissions": {
+      "D11 compatibility - #3433611": "PATCHES/node_view_permissions-D11-compatibility-3433611.patch"
+    },
+    "drupal/private_content": {
+      "D11 compatibility - #3433987": "PATCHES/private_content-D11-compatibility-3433987.patch"
+    },
     "drupal/social_auth": {
       "Allow activate on users": "PATCHES/social_auth_blocked.patch"
     },
