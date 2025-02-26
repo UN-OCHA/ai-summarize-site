@@ -19,6 +19,7 @@
       "D11 compatibility - #3433987": "PATCHES/private_content-D11-compatibility-3433987.patch"
     },
     "drupal/social_auth": {
+      "Type Error - #3496656": "PATCHES/social_auth-type-error-3496656.patch",
       "Allow activate on users": "PATCHES/social_auth_blocked.patch"
     },
     "drupal/user_expire": {
