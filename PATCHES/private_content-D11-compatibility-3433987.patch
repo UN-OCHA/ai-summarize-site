@@ -1,0 +1,23 @@
+From 1bbb4cb9913526cdb17b264337e91098d8a7f292 Mon Sep 17 00:00:00 2001
+From: Project-Update-bot <updatebot@assosiation.drupal.org>
+Date: Sun, 24 Mar 2024 21:35:50 +0000
+Subject: [PATCH] Automated Project Update Bot fixes from run 11-127659.
+
+---
+ private_content.info.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/private_content.info.yml b/private_content.info.yml
+index 2334e49..65275d3 100644
+--- a/private_content.info.yml
++++ b/private_content.info.yml
+@@ -1,5 +1,5 @@
+ name: Private Content
+ description: Allows users to mark content as private, and hide that content from visitors.
+-core_version_requirement: ^9 || ^10
++core_version_requirement: ^9 || ^10 || ^11
+ package: Access control
+ type: module
+-- 
+GitLab
+
