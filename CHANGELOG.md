@@ -4,6 +4,18 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.4.1](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.4.0...v1.4.1) (2025-03-17)
+
+### Bug Fixes
+
+* Add social_auth patch ([4eb615](https://github.com/UN-OCHA/ai-summarize-site/commit/4eb615b7141480acde05f8dab1fc6eb83518ca29))
+
+### Chores
+
+* Clean up old patches ([3e9b6a](https://github.com/UN-OCHA/ai-summarize-site/commit/3e9b6ae8d46429c5f04c72e5468f9d6ef5ac9519))
+* Remove unused module ([9e1d42](https://github.com/UN-OCHA/ai-summarize-site/commit/9e1d42b1b4671e6d89155f536cae2753b204d43e))
+* Update all outdated drupal/* unocha/* drush/* weitzman/drupal-test-traits packages. ([5c4cf2](https://github.com/UN-OCHA/ai-summarize-site/commit/5c4cf2da4bc097a28fe710a6eba09188369ce542))
+
 ## [1.4.0](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.3.0...v1.4.0) (2025-02-20)
 
 ### Features
