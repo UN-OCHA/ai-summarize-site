@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.4.2](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.4.1...v1.4.2) (2025-03-20)
+
+### Bug Fixes
+
+
+##### Tests
+
+* Set a higher rate limit for bots, so the test bot does not get limited because of its UA string. ([c45609](https://github.com/UN-OCHA/ai-summarize-site/commit/c45609902fecb9397ac5e4650541acddd874b327))
+
+### Chores
+
+* Composer update ([546e13](https://github.com/UN-OCHA/ai-summarize-site/commit/546e13caf46c865e8b57b1848b2cabab1548ad63))
+
 ## [1.4.1](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.4.0...v1.4.1) (2025-03-17)
 
 ### Bug Fixes
