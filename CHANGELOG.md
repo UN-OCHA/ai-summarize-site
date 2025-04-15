@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [1.4.3](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.4.2...v1.4.3) (2025-04-15)
+
+### Chores
+
+* Update all outdated drupal/* unocha/* drush/* weitzman/drupal-test-traits packages. ([ce90d1](https://github.com/UN-OCHA/ai-summarize-site/commit/ce90d1d371c7db0300be4bd0a4fc2c5beb712c28), [284080](https://github.com/UN-OCHA/ai-summarize-site/commit/284080d7d39eeae3f7af6f72f81098951e6c765b), [433aa1](https://github.com/UN-OCHA/ai-summarize-site/commit/433aa1d78866d8ff429595641399dd72040bf7bb))
+
+##### Deps
+
+* Bump tar-fs and puppeteer ([1279cc](https://github.com/UN-OCHA/ai-summarize-site/commit/1279cc1d145ea2746269652fb816e03bffec063d))
+
+##### Deps-dev
+
+* Bump axios and jest-puppeteer ([24ee8c](https://github.com/UN-OCHA/ai-summarize-site/commit/24ee8cfa69a0e99d513929fae1aac5a81f1d8afe))
+
 ## [1.4.2](https://github.com/UN-OCHA/ai-summarize-site/compare/v1.4.1...v1.4.2) (2025-03-20)
 
 ### Bug Fixes
